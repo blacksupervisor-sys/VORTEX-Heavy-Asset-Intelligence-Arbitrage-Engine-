@@ -82,7 +82,7 @@ with st.container(border=True):
     if st.button("🔍 Analisis Sudut Serang (Marketing Angle)", use_container_width=True, type="primary"):
         if api_key:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-pro')
+            model = genai.GenerativeModel('gemini-flash-latest')
             
             intelligence_prompt = f"""
             Kamu adalah Ahli Intelijen Pasar Alat Berat dan Copywriter Kelas Kakap. 
