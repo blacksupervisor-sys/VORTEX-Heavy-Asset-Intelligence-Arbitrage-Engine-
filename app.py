@@ -2,12 +2,20 @@ import streamlit as st
 import google.generativeai as genai
 import json
 import PyPDF2
-from PIL import Image  # Tambahan library untuk membaca file gambar
+from PIL import Image
 
 # ==========================================
 # KONFIGURASI HALAMAN & STATE MANAGEMENT
 # ==========================================
 st.set_page_config(page_title="VORTEX: Master Domination Engine", page_icon="🌪️", layout="wide")
+
+# --- AMBIL API KEY DARI SECRETS ---
+try:
+    api_key = st.secrets["GEMINI_API_KEY"]
+    genai.configure(api_key=api_key)
+except KeyError:
+    st.error("⚠️ GEMINI_API_KEY tidak ditemukan! Pastikan Anda sudah mengatur rahasia di `.streamlit/secrets.toml` atau di Streamlit Cloud Secrets.")
+    st.stop() # Hentikan aplikasi jika API key tidak ada
 
 if "intelligence_data" not in st.session_state:
     st.session_state.intelligence_data = ""
@@ -20,7 +28,7 @@ if "campaign_data" not in st.session_state:
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/engineering.png", width=80)
     st.title("⚙️ VORTEX Settings")
-    api_key = st.text_input("Gemini API Key", type="password")
+    st.success("✅ API Key Terhubung via Secrets")
     
     st.divider()
     st.markdown("**Corong Konversi (Funnel)**")
