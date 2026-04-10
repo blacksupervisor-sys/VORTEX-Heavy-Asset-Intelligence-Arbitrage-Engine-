@@ -138,7 +138,7 @@ with st.container(border=True):
             st.error("⚠️ Masukkan Gemini API Key di sidebar terlebih dahulu!")
         else:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-pro', generation_config={"response_mime_type": "application/json"})
+            model = genai.GenerativeModel('gemini-flash-latest', generation_config={"response_mime_type": "application/json"})
             
             factory_prompt = f"""
             Kamu adalah AI Content Factory tingkat lanjut. Gunakan Data Intelijen ini:
