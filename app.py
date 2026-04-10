@@ -2,6 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 import json
 import PyPDF2
+from PIL import Image  # Tambahan library untuk membaca file gambar
 
 # ==========================================
 # KONFIGURASI HALAMAN & STATE MANAGEMENT
@@ -27,7 +28,7 @@ with st.sidebar:
     affiliate_link = st.text_input("Link Shopee Affiliate", "https://shope.ee/...")
     
     st.divider()
-    st.caption("Developed for Heavy-Asset Domination")
+    st.caption("Developed for Heavy-Asset Domination | by Adjie")
 
 st.title("🌪️ VORTEX Engine")
 st.subheader("Intelligence-Driven Content Factory for Heavy Equipment")
@@ -35,7 +36,7 @@ st.subheader("Intelligence-Driven Content Factory for Heavy Equipment")
 # ==========================================
 # MODUL 1: THE INTELLIGENCE WEAPON
 # ==========================================
-st.header("🎯 Modul 1: Radar Intelijen & Ekstraksi Teknis")
+st.header("🎯 Modul 1: Radar Intelijen & Visual Ekstraksi")
 with st.container(border=True):
     col1, col2 = st.columns(2)
     
@@ -43,17 +44,28 @@ with st.container(border=True):
         brand = st.selectbox("Merek Produk", ["AIMIX", "Tatsuo"])
         unit_type = st.text_input("Tipe Unit", "Self Loading Mixer + ABT60C")
         
-        st.markdown("**Bahan Bakar Spesifikasi (Opsional)**")
-        uploaded_file = st.file_uploader("Unggah Brosur / Technical Spec (PDF)", type="pdf")
+        # FITUR BARU: Menerima PDF, PNG, JPG, JPEG
+        st.markdown("**Bahan Bakar Spesifikasi (PDF/Image)**")
+        uploaded_file = st.file_uploader("Unggah Brosur / Technical Spec", type=["pdf", "png", "jpg", "jpeg"])
         
         pdf_text = ""
+        image_data = None
+        
         if uploaded_file is not None:
-            pdf_reader = PyPDF2.PdfReader(uploaded_file)
-            for page in pdf_reader.pages:
-                extracted = page.extract_text()
-                if extracted:
-                    pdf_text += extracted
-            st.success("📄 Dokumen PDF berhasil diserap!")
+            file_extension = uploaded_file.name.split('.')[-1].lower()
+            
+            if file_extension == 'pdf':
+                pdf_reader = PyPDF2.PdfReader(uploaded_file)
+                for page in pdf_reader.pages:
+                    extracted = page.extract_text()
+                    if extracted:
+                        pdf_text += extracted
+                st.success("📄 Dokumen PDF berhasil diserap!")
+            elif file_extension in ['png', 'jpg', 'jpeg']:
+                # Membaca gambar menggunakan PIL
+                image_data = Image.open(uploaded_file)
+                st.image(image_data, caption="Visual Data Injected", use_container_width=True)
+                st.success("🖼️ Gambar Brosur berhasil diserap oleh Mata AI!")
 
     with col2:
         project_scenario = st.text_area("Skenario Proyek / Kondisi Lapangan", 
@@ -72,17 +84,22 @@ with st.container(border=True):
             Kondisi Lapangan: {project_scenario}
             
             DATA SPESIFIKASI TEKNIS:
-            "{pdf_text if pdf_text else 'Gunakan pengetahuan umummu yang sangat akurat tentang alat ini.'}"
+            "{pdf_text if pdf_text else 'Jika ada gambar yang dilampirkan, baca seluruh spesifikasi dari gambar tersebut. Jika tidak, gunakan pengetahuan umummu.'}"
             
             Hasilkan analisis dalam format teks yang rapi dan terstruktur:
             1. 🛑 Pain Points Utama Kontraktor di lapangan tersebut.
-            2. ⚡ Solusi Ekstrem dari {brand} (berdasarkan spesifikasi teknis).
+            2. ⚡ Solusi Ekstrem dari {brand} (berdasarkan spesifikasi di gambar/teks).
             3. 🎯 Killer Marketing Angle (Penawaran emosional dan logis).
             """
             
-            with st.spinner("Memindai dokumen teknis dan psikologi pasar..."):
+            # FITUR BARU: Menggabungkan teks dan gambar (Multimodal)
+            prompt_contents = [intelligence_prompt]
+            if image_data is not None:
+                prompt_contents.append(image_data)
+            
+            with st.spinner("Memindai visual/dokumen teknis dan psikologi pasar..."):
                 try:
-                    response = model.generate_content(intelligence_prompt)
+                    response = model.generate_content(prompt_contents)
                     st.session_state.intelligence_data = response.text
                     st.success("Analisis Intelijen Selesai!")
                 except Exception as e:
@@ -113,7 +130,6 @@ with st.container(border=True):
             st.error("⚠️ Masukkan Gemini API Key di sidebar terlebih dahulu!")
         else:
             genai.configure(api_key=api_key)
-            # Menggunakan JSON format strict dari Gemini
             model = genai.GenerativeModel('gemini-1.5-pro', generation_config={"response_mime_type": "application/json"})
             
             factory_prompt = f"""
@@ -131,7 +147,7 @@ with st.container(border=True):
                   "visual_prompt": "Instruksi VEO 3: Deskripsi visual SANGAT DETAIL (Max 8s). Sebutkan pergerakan kamera (drone pan, close up tilt), pencahayaan, tekstur alat, dan lingkungan.",
                   "narator_vo": "Teks voice over singkat (bahasa Indonesia)",
                   "sfx": "Instruksi sound effect (misal: Heavy diesel engine rumble)"
-                }},
+                }}
                 // Buat tepat 4 scene yang menyambung (Problem -> Agitate -> Solution -> Call to Action)
               ]
             }}
@@ -162,7 +178,6 @@ if st.session_state.campaign_data:
             st.markdown(f"**🎙️ Narasi (VO):** {scene['narator_vo']}")
             st.markdown(f"**🔊 SFX:** {scene['sfx']}")
             
-    # Fitur Download JSON
     st.divider()
     json_string = json.dumps(data, indent=4)
     st.download_button(
