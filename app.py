@@ -405,7 +405,7 @@ with st.expander("📇 Modul 11: Elite Digital Card & Identitas Resmi", expanded
         # --- Desain Bagian Atas Kartu (Logo AZARINDO & Brand) ---
         
         # NOTE UNTUK ADJIE: Ganti placeholder ini dengan link logo asli di GitHub Anda nantinya.
-        url_azarindo = "https://via.placeholder.com/250x70.png?text=AZARINDO+LOGO"
+        url_azarindo = "AZARINDO.png"
         url_tatsuo = "https://via.placeholder.com/120x40.png?text=TATSUO" 
         url_aimix = "https://via.placeholder.com/120x40.png?text=AIMIX"
         url_timehope = "https://via.placeholder.com/120x40.png?text=TIMEHOPE"
