@@ -1,4 +1,5 @@
 streamlit
 google-generativeai
 PyPDF2
-pillow
+Pillow
+python-docx
