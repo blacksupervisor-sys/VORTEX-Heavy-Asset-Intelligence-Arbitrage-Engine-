@@ -177,6 +177,53 @@ with st.container(border=True):
                     st.error(f"Error parsing JSON: {e}")
 
 # ==========================================
+# MODUL EKSTRA: AI COMMENT SNIPER
+# ==========================================
+st.divider()
+st.header("💬 Modul 4: AI Comment Sniper (Q&A Responder)")
+with st.container(border=True):
+    st.markdown("Gunakan modul ini untuk membantai pertanyaan teknis sulit dari prospek di kolom komentar TikTok, LinkedIn, atau YouTube.")
+    
+    col_c1, col_c2 = st.columns([2, 1])
+    with col_c1:
+        user_comment = st.text_area("✍️ Paste Komentar / Pertanyaan Prospek di Sini:", 
+                                    placeholder="Contoh: 'Kalau dipakai ngecor di kemiringan 30 derajat, pompa ABT60C ini ngempos gak mesinnya?'")
+    with col_c2:
+        st.markdown("**Target Konversi**")
+        st.info("AI akan otomatis menyisipkan ajakan konsultasi ke nomor WA Anda di akhir jawaban.")
+        
+    if st.button("🎯 Generate Jawaban Teknis (Sniper Mode)", use_container_width=True, type="primary"):
+        if not user_comment:
+            st.warning("⚠️ Paste komentar prospek terlebih dahulu!")
+        else:
+            model_sniper = genai.GenerativeModel('gemini-flash-latest')
+            
+            sniper_prompt = f"""
+            Kamu adalah Elite Technical Sales Engineer untuk produk {brand} {unit_type}. 
+            Tugasmu adalah membalas pertanyaan prospek di media sosial dengan otoritas, cerdas, dan persuasif.
+            
+            Komentar Prospek: "{user_comment}"
+            
+            SUMBER KEBENARAN TEKNIS (Wajib gunakan data ini jika relevan):
+            {pdf_text if 'pdf_text' in locals() and pdf_text else 'Gunakan pengetahuan teknis terbaikmu tentang alat ini.'}
+            
+            ATURAN MENJAWAB:
+            1. Tunjukkan empati pada masalah mereka, lalu berikan jawaban TEKNIS yang masuk akal (tunjukkan kamu ahli, bukan sekadar admin).
+            2. Jangan mengarang spesifikasi. Jika data tidak ada di sumber kebenaran, berikan jawaban logis seputar performa mesin industri kelas atas.
+            3. Gunakan bahasa yang profesional namun tetap asik ala lapangan (jangan terlalu kaku seperti robot).
+            4. Akhiri dengan ajakan halus (Call to Action) agar mereka menghubungi WhatsApp {wa_num} untuk diskusi teknis lebih lanjut atau minta penawaran.
+            """
+            
+            with st.spinner("Meracik jawaban teknis tingkat dewa..."):
+                try:
+                    response_sniper = model_sniper.generate_content(sniper_prompt)
+                    st.success("Jawaban Siap Ditembakkan!")
+                    st.markdown("### 📝 Draft Balasan Anda:")
+                    st.info(response_sniper.text)
+                except Exception as e:
+                    st.error(f"Error: {e}")
+                    
+# ==========================================
 # HASIL EKSEKUSI & SCHEDULING
 # ==========================================
 if st.session_state.campaign_data:
