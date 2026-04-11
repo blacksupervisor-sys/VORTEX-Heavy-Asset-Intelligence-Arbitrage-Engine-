@@ -105,7 +105,7 @@ with st.container(border=True):
             st.success("🖼️ Gambar Brosur Berhasil!")
         
     if st.button("🔍 Jalankan Analisis Intelijen", use_container_width=True, type="primary"):
-        model_intel = genai.GenerativeModel('gemini-1.5-flash-latest')
+        model_intel = genai.GenerativeModel('gemini-flash-latest')
         
         intelligence_prompt = f"""
         Kamu adalah Ahli Intelijen Pasar Alat Berat. Analisis skenario lapangan dan cocokkan dengan spesifikasi alat.
