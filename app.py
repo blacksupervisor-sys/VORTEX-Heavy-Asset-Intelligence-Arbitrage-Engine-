@@ -8,7 +8,7 @@ import datetime
 # ==========================================
 # KONFIGURASI HALAMAN & STATE MANAGEMENT
 # ==========================================
-st.set_page_config(page_title="VORTEX 3.1: Ultimate Flash Engine", page_icon="🌪️", layout="wide")
+st.set_page_config(page_title="VORTEX 3.2: Multi-Brand Edition", page_icon="🌪️", layout="wide")
 
 # --- AMBIL API KEY DARI SECRETS ---
 try:
@@ -34,7 +34,7 @@ with st.sidebar:
     st.divider()
     st.subheader("📡 VORTEX Engine Status")
     st.success("Model: gemini-1.5-flash-latest")
-    st.success("Speed: Ultra-Fast")
+    st.info("Brand Library: AIMIX, Tatsuo, New Timehope")
     
     st.divider()
     st.subheader("🔗 Sales Funnel")
@@ -42,18 +42,17 @@ with st.sidebar:
     aff_link = st.text_input("Shopee Affiliate", "https://shope.ee/...")
     
     st.divider()
-    st.caption("VORTEX 3.1 | Powered by Gemini Flash")
+    st.caption("VORTEX 3.2 | Multi-Brand Dominance")
 
-st.title("🌪️ VORTEX 3.1: Lightning Speed Domination")
+st.title("🌪️ VORTEX 3.2: Multi-Brand Domination")
 st.subheader("Automated Radar, Intelligence, and Content Factory")
 
 # ==========================================
-# MODUL 1: RADAR CUACA & TENDER (LIVE INTEL)
+# MODUL 1: RADAR CUACA & TENDER
 # ==========================================
 st.header("📡 Modul 1: Radar Intelijen (Cuaca & Tender)")
 with st.container(border=True):
     col_w1, col_w2 = st.columns(2)
-    
     with col_w1:
         st.markdown("**⛈️ Sensor Cuaca**")
         lokasi = st.selectbox("Lokasi Radar", ["Samarinda, ID", "Penajam (IKN), ID", "Balikpapan, ID"])
@@ -64,27 +63,28 @@ with st.container(border=True):
     with col_w2:
         st.markdown("**🏗️ Radar Tender & Proyek**")
         if st.button("🛰️ Scan Tender Terbaru (Kaltim/IKN)", use_container_width=True):
-            with st.spinner("Memindai berita proyek & LPSE dengan kecepatan Flash..."):
-                # Menggunakan gemini-1.5-flash-latest
+            with st.spinner("Memindai berita proyek & LPSE..."):
                 model_radar = genai.GenerativeModel('gemini-1.5-flash-latest')
-                res = model_radar.generate_content("Cari info singkat tren proyek infrastruktur atau tambang terbaru di Kalimantan Timur bulan ini. Buat dalam 2 paragraf singkat.")
+                res = model_radar.generate_content("Cari info singkat tren proyek infrastruktur, gedung, atau tambang terbaru di Kalimantan Timur bulan ini. Buat dalam 2 paragraf singkat.")
                 st.session_state.project_scenario = res.text
                 st.success("Radar Tender Berhasil!")
 
 if st.session_state.project_scenario or st.session_state.current_weather:
     with st.expander("📝 Hasil Scan Radar (Klik untuk Edit)", expanded=True):
         gabungan_radar = f"Kondisi Cuaca: {st.session_state.current_weather}\n\nKondisi Proyek: {st.session_state.project_scenario}"
-        final_scenario = st.text_area("Final Scenario (Akan disuntikkan ke AI)", value=gabungan_radar, height=150)
+        final_scenario = st.text_area("Final Scenario (Input ke AI)", value=gabungan_radar, height=150)
 
 # ==========================================
-# MODUL 2: THE INTELLIGENCE WEAPON
+# MODUL 2: THE INTELLIGENCE WEAPON (MULTI-BRAND)
 # ==========================================
 st.header("🎯 Modul 2: Ekstraksi Spesifikasi & Intelijen")
 with st.container(border=True):
     col_u1, col_u2 = st.columns([1, 1])
     with col_u1:
-        brand = st.selectbox("Merek Produk", ["AIMIX", "Tatsuo"])
-        unit_type = st.text_input("Tipe Unit", "Self Loading Mixer + ABT60C")
+        brand = st.selectbox("Merek Produk", ["AIMIX", "Tatsuo", "New Timehope"])
+        # Logika default unit berdasarkan brand
+        default_unit = "HSPD 120" if brand == "New Timehope" else "Self Loading Mixer"
+        unit_type = st.text_input("Tipe Unit", default_unit)
     with col_u2:
         uploaded_file = st.file_uploader("Upload Brosur / Spek (PDF/PNG/JPG)", type=["pdf", "png", "jpg", "jpeg"])
         
@@ -97,16 +97,14 @@ with st.container(border=True):
             pdf_reader = PyPDF2.PdfReader(uploaded_file)
             for page in pdf_reader.pages:
                 extracted = page.extract_text()
-                if extracted:
-                    pdf_text += extracted
-            st.success("📄 Dokumen PDF berhasil diserap!")
+                if extracted: pdf_text += extracted
+            st.success("📄 Dokumen PDF Berhasil!")
         elif file_extension in ['png', 'jpg', 'jpeg']:
             image_data = Image.open(uploaded_file)
             st.image(image_data, caption="Visual Data Injected", use_container_width=True)
-            st.success("🖼️ Gambar Brosur berhasil diserap!")
+            st.success("🖼️ Gambar Brosur Berhasil!")
         
     if st.button("🔍 Jalankan Analisis Intelijen", use_container_width=True, type="primary"):
-        # Menggunakan gemini-1.5-flash-latest
         model_intel = genai.GenerativeModel('gemini-1.5-flash-latest')
         
         intelligence_prompt = f"""
@@ -117,16 +115,18 @@ with st.container(border=True):
         DATA SPESIFIKASI:
         "{pdf_text if pdf_text else 'Baca dari gambar jika ada, atau gunakan pengetahuan umummu.'}"
         
+        KHUSUS UNTUK NEW TIMEHOPE HSPD: Fokuskan pada keunggulan Static Pile Driving (Tanpa suara, tanpa getaran, cocok untuk area perkotaan/IKN, tanah lunak).
+        
         Output:
-        1. Pain Points Utama
-        2. Solusi Teknis Alat
-        3. Killer Marketing Angle
+        1. Pain Points Utama Kontraktor.
+        2. Solusi Teknis Alat (Mapping Spek ke Masalah).
+        3. Killer Marketing Angle (Logis & Emosional).
         """
         
         prompt_contents = [intelligence_prompt]
         if image_data is not None: prompt_contents.append(image_data)
         
-        with st.spinner("Memproses Analisis Intelijen..."):
+        with st.spinner(f"Menganalisis {brand} {unit_type}..."):
             try:
                 response = model_intel.generate_content(prompt_contents)
                 st.session_state.intelligence_data = response.text
@@ -150,7 +150,6 @@ with st.container(border=True):
         if not st.session_state.intelligence_data:
             st.warning("⚠️ Jalankan Modul 2 terlebih dahulu!")
         else:
-            # Menggunakan gemini-1.5-flash-latest dengan format JSON Strict
             model_factory = genai.GenerativeModel('gemini-1.5-flash-latest', generation_config={"response_mime_type": "application/json"})
             
             factory_prompt = f"""
@@ -159,13 +158,13 @@ with st.container(border=True):
             
             Output HANYA JSON strict:
             {{
-              "copywriting": "Caption sosmed agresif, call to action ke WA {wa_num} & link alat safety {aff_link}",
+              "copywriting": "Caption sosmed agresif. Jika HSPD, tekankan 'Bekerja Tanpa Suara & Getaran'. WA {wa_num} & link safety {aff_link}",
               "veo_prompts": [
                 {{
                   "scene": 1,
-                  "visual": "Prompt Veo 3 detail max 8s",
+                  "visual": "Prompt Veo 3 detail max 8s. Untuk HSPD: Tunjukkan mesin menekan tiang pancang dengan stabil, lingkungan perkotaan yang tenang.",
                   "vo": "Voice over",
-                  "sfx": "Sound effect"
+                  "sfx": "Sound effect (Hydraulic hum, quiet industrial atmosphere)"
                 }}
               ]
             }}
@@ -182,7 +181,6 @@ with st.container(border=True):
 # ==========================================
 if st.session_state.campaign_data:
     data = st.session_state.campaign_data
-    
     st.subheader("📝 Teks Copywriting")
     st.info(data.get("copywriting", "Data tidak ditemukan"))
     
@@ -194,15 +192,13 @@ if st.session_state.campaign_data:
             st.markdown(f"**SFX:** {s.get('sfx', '')}")
             
     st.divider()
-    
-    # Dashboard Auto-Publish (Simulasi UI)
     col_p1, col_p2, col_p3 = st.columns(3)
     with col_p1:
         json_dl = json.dumps(data, indent=4)
-        st.download_button("💾 Download JSON", data=json_dl, file_name="Campaign.json", use_container_width=True)
+        st.download_button("💾 Download JSON", data=json_dl, file_name=f"VORTEX_{brand}.json", use_container_width=True)
     with col_p2:
         st.button("📲 Post to TikTok Now", use_container_width=True)
     with col_p3:
         post_date = st.date_input("Jadwalkan", datetime.date.today(), label_visibility="collapsed")
         if st.button("⏰ Set Schedule", use_container_width=True):
-            st.success(f"Konten siap diluncurkan pada {post_date}")
+            st.success(f"Konten dijadwalkan pada {post_date}")
