@@ -177,49 +177,56 @@ with st.container(border=True):
                     st.error(f"Error parsing JSON: {e}")
 
 # ==========================================
-# MODUL EKSTRA: AI COMMENT SNIPER
+# MODUL 4: AI COMMENT SNIPER 2.0 (INTENT DETECTOR)
 # ==========================================
 st.divider()
-st.header("💬 Modul 4: AI Comment Sniper (Q&A Responder)")
+st.header("💬 Modul 4: AI Comment Sniper (Radar Niat & Q&A)")
 with st.container(border=True):
-    st.markdown("Gunakan modul ini untuk membantai pertanyaan teknis sulit dari prospek di kolom komentar TikTok, LinkedIn, atau YouTube.")
+    st.markdown("Deteksi otomatis apakah komentar berasal dari *Hot Lead*, *Troll*, atau *Kompetitor*, dan hasilkan balasan psikologis yang mematikan.")
     
     col_c1, col_c2 = st.columns([2, 1])
     with col_c1:
-        user_comment = st.text_area("✍️ Paste Komentar / Pertanyaan Prospek di Sini:", 
-                                    placeholder="Contoh: 'Kalau dipakai ngecor di kemiringan 30 derajat, pompa ABT60C ini ngempos gak mesinnya?'")
+        user_comment = st.text_area("✍️ Paste Komentar Prospek di Sini:", 
+                                    placeholder="Contoh: 'Halah alat ginian paling sebulan jebol hidroliknya, mending merk S****'")
     with col_c2:
-        st.markdown("**Target Konversi**")
-        st.info("AI akan otomatis menyisipkan ajakan konsultasi ke nomor WA Anda di akhir jawaban.")
+        st.markdown("**Sistem Deteksi:**")
+        st.info("🟢 Hot Lead: Hard Closing\n🟡 Skeptis: Edukasi Teknis\n🔴 Troll/Pesaing: Fakta Pembungkam")
         
-    if st.button("🎯 Generate Jawaban Teknis (Sniper Mode)", use_container_width=True, type="primary"):
+    if st.button("🎯 Deteksi Niat & Tembak Balasan", use_container_width=True, type="primary"):
         if not user_comment:
-            st.warning("⚠️ Paste komentar prospek terlebih dahulu!")
+            st.warning("⚠️ Paste komentar terlebih dahulu!")
         else:
             model_sniper = genai.GenerativeModel('gemini-flash-latest')
             
             sniper_prompt = f"""
-            Kamu adalah Elite Technical Sales Engineer untuk produk {brand} {unit_type}. 
-            Tugasmu adalah membalas pertanyaan prospek di media sosial dengan otoritas, cerdas, dan persuasif.
+            Kamu adalah Elite Technical Sales Engineer untuk {brand} {unit_type}. 
             
-            Komentar Prospek: "{user_comment}"
+            Tugas Pertama: ANALISIS NIAT (INTENT) dari komentar ini: "{user_comment}"
+            Kategorikan ke dalam salah satu status berikut:
+            1. 🟢 HOT LEAD (Bertanya harga, spek detail, lokasi, kesediaan stok)
+            2. 🟡 SKEPTIS (Bertanya dengan nada meragukan kualitas atau performa)
+            3. 🔴 TROLL / KOMPETITOR (Menjatuhkan secara tidak logis, membandingkan dengan merk lain secara kasar)
+
+            Tugas Kedua: Buat balasan berdasarkan kategori tersebut.
+            - Jika HOT LEAD: Jawab dengan antusiasme tinggi, berikan 1 spesifikasi kunci yang paling mematikan, lalu arahkan untuk kalkulasi ROI di WA {wa_num}.
+            - Jika SKEPTIS: Jawab dengan tenang dan elegan. Patahkan keraguan mereka dengan FAKTA TEKNIS.
+            - Jika TROLL/KOMPETITOR: Jangan baper atau marah. 'Bunuh' argumen mereka dengan membeberkan teknologi superior dari alat ini yang tidak mereka ketahui. Buat mereka terlihat kurang *update* tentang mesin industri kelas atas, tapi tetap sopan. Akhiri dengan: "Kalau mau adu performa di lapangan, tim kami siap. Hubungi {wa_num}".
             
-            SUMBER KEBENARAN TEKNIS (Wajib gunakan data ini jika relevan):
-            {pdf_text if 'pdf_text' in locals() and pdf_text else 'Gunakan pengetahuan teknis terbaikmu tentang alat ini.'}
+            SUMBER KEBENARAN TEKNIS (Wajib gunakan ini untuk membalas):
+            {pdf_text if 'pdf_text' in locals() and pdf_text else 'Gunakan pengetahuan teknis terbaikmu tentang alat berat ini.'}
             
-            ATURAN MENJAWAB:
-            1. Tunjukkan empati pada masalah mereka, lalu berikan jawaban TEKNIS yang masuk akal (tunjukkan kamu ahli, bukan sekadar admin).
-            2. Jangan mengarang spesifikasi. Jika data tidak ada di sumber kebenaran, berikan jawaban logis seputar performa mesin industri kelas atas.
-            3. Gunakan bahasa yang profesional namun tetap asik ala lapangan (jangan terlalu kaku seperti robot).
-            4. Akhiri dengan ajakan halus (Call to Action) agar mereka menghubungi WhatsApp {wa_num} untuk diskusi teknis lebih lanjut atau minta penawaran.
+            Format Output Wajib:
+            **[STATUS PROSPEK]**: (Sebutkan Kategorinya dan alasan singkat)
+            
+            **[DRAFT BALASAN]**:
+            (Tulis balasanmu di sini)
             """
             
-            with st.spinner("Meracik jawaban teknis tingkat dewa..."):
+            with st.spinner("Menganalisis niat prospek dan meracik balasan..."):
                 try:
                     response_sniper = model_sniper.generate_content(sniper_prompt)
-                    st.success("Jawaban Siap Ditembakkan!")
-                    st.markdown("### 📝 Draft Balasan Anda:")
-                    st.info(response_sniper.text)
+                    st.success("Target Terkunci! Balasan Siap Ditembakkan.")
+                    st.markdown(response_sniper.text)
                 except Exception as e:
                     st.error(f"Error: {e}")
 
