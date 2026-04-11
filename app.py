@@ -405,10 +405,10 @@ with st.expander("📇 Modul 11: Elite Digital Card & Identitas Resmi", expanded
         # --- Desain Bagian Atas Kartu (Logo AZARINDO & Brand) ---
         
         # NOTE UNTUK ADJIE: Ganti placeholder ini dengan link logo asli di GitHub Anda nantinya.
-        url_azarindo = "AZARINDO.png"
-        url_tatsuo = "https://via.placeholder.com/120x40.png?text=TATSUO" 
-        url_aimix = "https://via.placeholder.com/120x40.png?text=AIMIX"
-        url_timehope = "https://via.placeholder.com/120x40.png?text=TIMEHOPE"
+        url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
+        url_tatsuo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TATSUO.png" 
+        url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
+        url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
 
         # Layout: Azarindo di atas (Utama), 3 Brand berjajar di bawahnya
         st.markdown(f"""
