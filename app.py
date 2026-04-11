@@ -297,60 +297,102 @@ with st.expander("🏛️ Modul 8: LPSE Tender Hacker", expanded=False):
         else: st.warning("Upload RKS Tender dulu!")
 
 # ==========================================
-# MODUL 9: AUTO-REPORT GENERATOR (SALES REPORTING)
+# MODUL 9: AUTO-REPORT GENERATOR (WITH CRM MEMORY)
 # ==========================================
-with st.expander("📊 Modul 9: Laporan Sales Otomatis", expanded=False):
-    st.markdown("Ubah catatan lapangan yang berantakan menjadi Laporan Harian/Triwulan/Tahunan level Eksekutif (Siap kirim ke Manajemen).")
+with st.expander("📊 Modul 9: Laporan Sales & Memori CRM", expanded=False):
+    st.markdown("Mesin menyimpan riwayat kunjungan harian Anda. Laporan Tahunan dapat ditarik otomatis dari akumulasi data memori.")
     
-    col_r1, col_r2 = st.columns([1, 2])
-    with col_r1:
-        jenis_laporan = st.selectbox("Jenis Laporan", ["Laporan Harian (Daily Activity)", "Laporan Triwulan (Quarterly Review)", "Laporan Tahunan (Annual Report)"])
-        periode = st.text_input("Periode / Tanggal", placeholder="Misal: 11 April 2026 atau Q1 2026")
+    # Fungsi Database Lokal
+    DB_FILE = "sales_memory.json"
+    
+    def load_memory():
+        if os.path.exists(DB_FILE):
+            with open(DB_FILE, "r") as f:
+                return json.load(f)
+        return []
+
+    def save_memory(tanggal, catatan):
+        data = load_memory()
+        data.append({"tanggal": tanggal, "catatan": catatan})
+        with open(DB_FILE, "w") as f:
+            json.dump(data, f, indent=4)
+            
+    # Antarmuka Modul 9
+    tab1, tab2 = st.tabs(["📝 Input Harian", "📈 Tarik Laporan Triwulan/Tahunan"])
+    
+    with tab1:
+        st.subheader("Catatan Kunjungan Harian")
+        tgl_harian = st.date_input("Tanggal Kunjungan", datetime.date.today())
+        raw_notes = st.text_area("✍️ Catatan Mentah (Voice Note/Ketik Cepat):", 
+                                 placeholder="Ke PT A nawarin Tatsuo, bos minta diskon. Lanjut PT B...", height=100)
+        simpan_db = st.checkbox("💾 Simpan ke Brankas Memori Jangka Panjang", value=True)
         
-    with col_r2:
-        raw_notes = st.text_area("✍️ Paste Catatan Mentah (Voice Note/Ketik Cepat):", 
-                                 placeholder="Contoh: Hari ini ke tambang PT A nawarin Tatsuo, bos minta diskon. Lanjut follow up AIMIX ke PT B di Samarinda, proyek jalan bulan depan, status hot lead...", height=150)
+        if st.button("📝 Buat Laporan Harian", use_container_width=True, type="primary"):
+            if not raw_notes:
+                st.warning("Masukkan catatan mentah!")
+            else:
+                if simpan_db:
+                    save_memory(str(tgl_harian), raw_notes)
+                    st.toast("✅ Data tersimpan di Brankas Memori!")
+                
+                model_daily = genai.GenerativeModel('gemini-flash-latest')
+                prompt_daily = f"Rapikan catatan sales ini menjadi laporan harian profesional tanggal {tgl_harian}: '{raw_notes}'. Format: Ringkasan, Status Prospek, Rencana Lanjutan."
+                
+                with st.spinner("Menyusun Laporan Harian..."):
+                    res_daily = model_daily.generate_content(prompt_daily)
+                    st.info(res_daily.text)
+                    
+                    # Fitur Download Harian
+                    doc_d = docx.Document()
+                    doc_d.add_heading(f'Laporan Harian - {tgl_harian}', 0)
+                    for p in res_daily.text.split('\n'):
+                        if p.strip(): doc_d.add_paragraph(p.strip())
+                    bio_d = io.BytesIO()
+                    doc_d.save(bio_d)
+                    st.download_button("📄 Download Laporan Harian (Word)", data=bio_d.getvalue(), file_name=f"Laporan_Harian_{tgl_harian}.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+
+    with tab2:
+        st.subheader("Ekstraksi Memori Besar (Triwulan/Tahunan)")
+        jenis_laporan = st.selectbox("Jenis Laporan", ["Triwulan (Quarterly)", "Tahunan (Annual)"])
         
-    if st.button("📈 Generate Laporan Profesional", use_container_width=True, type="primary"):
-        if not raw_notes:
-            st.warning("⚠️ Masukkan catatan mentah kunjungan Anda terlebih dahulu!")
-        else:
-            model_report = genai.GenerativeModel('gemini-flash-latest')
-            report_prompt = f"""
-            Kamu adalah Executive Assistant untuk Elite B2B Heavy Equipment Sales.
-            Tugasmu menyusun {jenis_laporan} untuk periode {periode} berdasarkan coretan catatan lapangan ini:
-            
-            CATATAN MENTAH SALES:
-            "{raw_notes}"
-            
-            INSTRUKSI PEMBUATAN LAPORAN:
-            Ubah catatan berantakan di atas menjadi laporan korporat formal yang siap dibaca oleh Direksi.
-            Gunakan struktur baku berikut:
-            1. 📝 Ringkasan Eksekutif (Kesimpulan aktivitas periode ini)
-            2. 🏢 Rincian Kunjungan & Status Pipeline (Kategorikan prospek menjadi Hot/Warm/Cold)
-            3. 🚧 Kendala Lapangan & Analisis Kompetitor (Jika disebutkan)
-            4. 🎯 Rencana Aksi (Next Steps) & Target Follow Up
-            
-            Aturan: Gunakan bahasa bisnis yang rapi, elegan, dan menonjolkan kinerja sales. Jangan mengarang data/angka yang tidak ada di catatan mentah.
-            """
-            
-            with st.spinner(f"Menyusun {jenis_laporan}..."):
-                try:
-                    res_report = model_report.generate_content(report_prompt)
-                    st.success("Laporan Eksekutif Selesai Dibuat!")
-                    st.info(res_report.text)
+        memori_tersimpan = load_memory()
+        st.caption(f"📦 Total data tersimpan di Brankas: **{len(memori_tersimpan)} catatan kunjungan**")
+        
+        if st.button("🚀 Rangkum & Generate Laporan Eksekutif", use_container_width=True, type="primary"):
+            if len(memori_tersimpan) == 0:
+                st.warning("Brankas memori masih kosong! Input laporan harian terlebih dahulu.")
+            else:
+                # Menggabungkan seluruh data memori menjadi satu string besar
+                big_data = "\n".join([f"Tgl {item['tanggal']}: {item['catatan']}" for item in memori_tersimpan])
+                
+                model_annual = genai.GenerativeModel('gemini-flash-latest')
+                prompt_annual = f"""
+                Kamu adalah Executive Assistant. Buatkan Laporan {jenis_laporan} berdasarkan SELURUH riwayat kunjungan harian ini:
+                
+                {big_data}
+                
+                Struktur Wajib:
+                1. 📝 Executive Summary (Rangkuman performa selama periode ini)
+                2. 🏆 Pencapaian & Hot Leads (Sebutkan klien mana yang paling potensial)
+                3. 🚧 Kendala Utama di Lapangan (Analisis hambatan tersering)
+                4. 🎯 Strategi Kedepan
+                
+                Gunakan bahasa korporat kelas atas yang elegan.
+                """
+                
+                with st.spinner(f"Membaca seluruh memori dan menyusun Laporan {jenis_laporan}..."):
+                    res_annual = model_annual.generate_content(prompt_annual)
+                    st.success("Laporan Eksekutif Selesai!")
+                    st.info(res_annual.text)
                     
-                    # Auto-Convert ke File Word
-                    doc_report = docx.Document()
-                    doc_report.add_heading(f'{jenis_laporan} - {periode}', 0)
-                    for p in res_report.text.split('\n'):
-                        if p.strip(): doc_report.add_paragraph(p.strip())
-                    bio_report = io.BytesIO()
-                    doc_report.save(bio_report)
-                    
-                    st.download_button("📄 Download File Word (Siap Kirim)", data=bio_report.getvalue(), file_name=f"Laporan_Sales_{periode}.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
-                except Exception as e:
-                    st.error(f"Error AI: {e}")
+                    # Fitur Download Tahunan
+                    doc_a = docx.Document()
+                    doc_a.add_heading(f'Laporan {jenis_laporan} Sales', 0)
+                    for p in res_annual.text.split('\n'):
+                        if p.strip(): doc_a.add_paragraph(p.strip())
+                    bio_a = io.BytesIO()
+                    doc_a.save(bio_a)
+                    st.download_button(f"📄 Download Laporan {jenis_laporan} (Word)", data=bio_a.getvalue(), file_name=f"Laporan_{jenis_laporan}.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
                     
 # ==========================================
 # FOOTER (DEVELOPER SIGNATURE)
