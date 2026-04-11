@@ -268,7 +268,7 @@ with st.container(border=True):
         met4.metric("ROI Tahunan", f"{roi_tahunan:.1f} %")
         
         # 2. Injeksi ke AI untuk Dibuatkan Proposal Eksekutif
-        model_finance = genai.GenerativeModel('gemini-1.5-flash-latest')
+        model_finance = genai.GenerativeModel('gemini-flash-latest')
         
         finance_prompt = f"""
         Kamu adalah Chief Financial Officer (CFO) dan Elite B2B Sales. 
