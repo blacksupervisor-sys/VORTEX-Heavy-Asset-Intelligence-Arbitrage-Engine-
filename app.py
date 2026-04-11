@@ -303,6 +303,86 @@ with st.container(border=True):
                 st.info(response_finance.text)
             except Exception as e:
                 st.error(f"Error AI: {e}")
+
+# ==========================================
+# MODUL 6: COMPETITOR KILL-SWITCH (BATTLECARD)
+# ==========================================
+st.divider()
+st.header("⚔️ Modul 6: Competitor Kill-Switch (Battlecard)")
+with st.container(border=True):
+    st.markdown("Hancurkan argumen kompetitor secara elegan di depan klien. AI akan mencari titik buta mereka dan memberikan Anda skrip *counter-attack*.")
+    
+    col_k1, col_k2 = st.columns(2)
+    with col_k1:
+        kompetitor_brand = st.text_input("Merek Kompetitor", placeholder="Contoh: Sany, XCMG, Zoomlion")
+        kompetitor_tipe = st.text_input("Tipe/Model Kompetitor", placeholder="Contoh: SY215C atau sebutkan kelasnya")
+    with col_k2:
+        st.info("🚨 Pastikan Anda sudah memilih Merek & Tipe Unit Anda sendiri di Modul 2 agar mesin bisa membandingkan.")
+        
+    if st.button("☠️ Generate Battlecard & Skrip Eksekusi", use_container_width=True, type="primary"):
+        if not kompetitor_brand:
+            st.warning("⚠️ Masukkan merek kompetitor terlebih dahulu!")
+        else:
+            model_killswitch = genai.GenerativeModel('gemini-flash-latest')
+            kill_prompt = f"""
+            Kamu adalah Elite B2B Sales Specialist. Prospek sedang membandingkan produk kita ({brand} {unit_type}) dengan kompetitor ({kompetitor_brand} {kompetitor_tipe}).
+            
+            Buatlah "Battlecard" taktis untuk saya gunakan di ruang rapat.
+            
+            Format Wajib:
+            1. 🔍 TITIK BUTA KOMPETITOR: Sebutkan 2 kelemahan spesifik teknis/purna jual dari {kompetitor_brand} (jika tidak tahu persis, gunakan kelemahan umum alat sekelasnya).
+            2. 🛡️ KEUNGGULAN MUTLAK KITA: Sebutkan 2 alasan teknis mengapa {brand} jauh lebih superior.
+            3. 💬 SKRIP SERANGAN ELEGAN: Buat 1 paragraf skrip bicara (untuk saya bacakan ke klien). Skrip ini TIDAK BOLEH menjelekkan kompetitor secara murahan, tapi harus 'membunuh' kompetitor dengan cara mengedukasi klien tentang efisiensi jangka panjang dan kerugian jika salah pilih.
+            """
+            
+            with st.spinner("Menyadap kelemahan kompetitor..."):
+                try:
+                    res_kill = model_killswitch.generate_content(kill_prompt)
+                    st.success("Battlecard Terkunci!")
+                    st.markdown(res_kill.text)
+                except Exception as e:
+                    st.error(f"Error: {e}")
+
+# ==========================================
+# MODUL 7: INFINITE UPSELL PREDICTOR
+# ==========================================
+st.divider()
+st.header("🔄 Modul 7: Infinite Upsell Predictor (Purna Jual)")
+with st.container(border=True):
+    st.markdown("Jangan biarkan klien dilupakan setelah beli unit. AI akan memprediksi jadwal *maintenance* dan membuat *draft* WA untuk *upsell spare part* atau alat *safety* afiliasi Anda.")
+    
+    col_up1, col_up2 = st.columns(2)
+    with col_up1:
+        nama_klien = st.text_input("Nama Klien / Perusahaan", placeholder="PT. Maju Konstruksi (Pak Budi)")
+        unit_klien = st.text_input("Unit yang Dibeli", value=f"{brand} {unit_type}")
+    with col_up2:
+        tgl_beli = st.date_input("Tanggal Beli / Mulai Operasi", datetime.date(2026, 1, 15))
+        
+    if st.button("🔮 Prediksi Kebutuhan & Generate Skrip Follow-Up", use_container_width=True, type="primary"):
+        # Menghitung selisih hari dari tanggal beli ke hari ini
+        hari_operasi = (datetime.date.today() - tgl_beli).days
+        estimasi_jam = hari_operasi * 10 # Asumsi kerja 10 jam/hari
+        
+        st.markdown(f"**Estimasi Pemakaian:** Alat telah beroperasi selama **{hari_operasi} hari** (sekitar **{estimasi_jam} Jam Kerja**).")
+        
+        model_upsell = genai.GenerativeModel('gemini-flash-latest')
+        upsell_prompt = f"""
+        Kamu adalah After-Sales Manager yang sangat peduli tapi juga jago jualan.
+        Klien {nama_klien} telah memakai unit {unit_klien} selama {hari_operasi} hari (sekitar {estimasi_jam} jam kerja).
+        
+        Tugas:
+        1. DIAGNOSA: Apa komponen (filter, oli, seal, dll) yang PASTI sudah waktunya diganti/dicek pada jam kerja segini untuk alat berat tersebut?
+        2. DRAFT WA (CARE & UPSELL): Buatkan pesan WhatsApp yang terdengar ramah dan peduli (bukan seperti nagih). Ingatkan jadwal ganti komponen tersebut agar alat tidak rusak. 
+        3. SISIPAN AFILIASI: Di akhir pesan WA, secara natural rekomendasikan mereka untuk stok alat pendukung (misal: grease gun otomatis, sarung tangan mekanik, atau helm safety) dan berikan link afiliasi ini: {aff_link}.
+        """
+        
+        with st.spinner("Memprediksi keausan komponen & meracik pesan..."):
+            try:
+                res_upsell = model_upsell.generate_content(upsell_prompt)
+                st.success("Prediksi Selesai! Pesan siap dikirim.")
+                st.markdown(res_upsell.text)
+            except Exception as e:
+                st.error(f"Error: {e}")
                 
 # ==========================================
 # HASIL EKSEKUSI & SCHEDULING
