@@ -394,7 +394,63 @@ with st.expander("📊 Modul 9: Laporan Sales & Memori CRM", expanded=False):
                     bio_a = io.BytesIO()
                     doc_a.save(bio_a)
                     st.download_button(f"📄 Download Laporan {jenis_laporan} (Word)", data=bio_a.getvalue(), file_name=f"Laporan_{jenis_laporan}.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
-                    
+
+                    # ==========================================
+# MODUL 11: ELITE DIGITAL CARD & LOGOS (AZARINDO EDITION)
+# ==========================================
+with st.expander("📇 Modul 11: Elite Digital Card & Identitas Resmi", expanded=True):
+    st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA. Ini adalah identitas digital modern Anda.")
+    
+    with st.container(border=True):
+        # --- Desain Bagian Atas Kartu (Logo AZARINDO & Brand) ---
+        
+        # NOTE UNTUK ADJIE: Ganti placeholder ini dengan link logo asli di GitHub Anda nantinya.
+        url_azarindo = "https://via.placeholder.com/250x70.png?text=AZARINDO+LOGO"
+        url_tatsuo = "https://via.placeholder.com/120x40.png?text=TATSUO" 
+        url_aimix = "https://via.placeholder.com/120x40.png?text=AIMIX"
+        url_timehope = "https://via.placeholder.com/120x40.png?text=TIMEHOPE"
+
+        # Layout: Azarindo di atas (Utama), 3 Brand berjajar di bawahnya
+        st.markdown(f"""
+            <div style="text-align: center; background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;">
+                <img src="{url_azarindo}" style="height: 50px; max-width: 80%; object-fit: contain; margin-bottom: 5px;" alt="Azarindo Logo"><br>
+                <span style="font-size: 0.75em; color: #888; font-weight: bold; letter-spacing: 1px;">AUTHORIZED DEALER FOR:</span>
+                
+                <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+                    <img src="{url_tatsuo}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Tatsuo Logo">
+                    <div style="border-left: 1px solid #ccc; height: 20px;"></div>
+                    <img src="{url_aimix}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Aimix Logo">
+                    <div style="border-left: 1px solid #ccc; height: 20px;"></div>
+                    <img src="{url_timehope}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Timehope Logo">
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        st.divider()
+
+        # --- Desain Bagian Tengah (Identitas Sales) ---
+        st.markdown("<h2 style='text-align: center; color: #1E90FF; margin-bottom: 0px;'>Adjie Agung</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; font-size: 1.1em; color: #888; margin-top: 0px;'>Elite Heavy Machinery Specialist</p>", unsafe_allow_html=True)
+        
+        st.divider()
+        
+        # --- Desain Bagian Bawah (Kontak & Cuan) ---
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            st.markdown("**📞 Jalur Eksekutif:**")
+            st.markdown(f"📱 WhatsApp: **{wa_num}**")
+            st.markdown(f"💼 Area: **Kalimantan & Indonesia Timur**")
+            
+            st.markdown("**🛠️ Dukungan APD & Operasional:**")
+            st.markdown(f"🛒 [Katalog Resmi Shopee]({aff_link})")
+            
+        with col_c2:
+            st.markdown("**☕ Apresiasi Konsultasi Teknis:**")
+            st.markdown("*Dukung tim engineer kami melalui:*")
+            
+            st.markdown("🔗 **[Saweria](https://saweria.co/)**")
+            st.success("💳 Scan QR ShopeePay")
+            
 # ==========================================
 # FOOTER (DEVELOPER SIGNATURE)
 # ==========================================
