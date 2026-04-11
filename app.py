@@ -282,7 +282,7 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
         st.divider()
 
         st.markdown("<h2 style='text-align: center; color: #1E90FF; margin-bottom: 0px;'>Adjie Agung</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; font-size: 1.1em; color: #888; margin-top: 0px;'>Elite Heavy Machinery Specialist</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; font-size: 1.1em; color: #888; margin-top: 0px;'>HEAVY EQUIPMENT SALES</p>", unsafe_allow_html=True)
         
         st.divider()
         
@@ -290,15 +290,9 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
         with col_c1:
             st.markdown("**📞 Jalur Eksekutif:**")
             st.markdown(f"📱 WhatsApp: **{wa_num}**")
-            st.markdown(f"💼 Area: **Kalimantan & Indonesia Timur**")
-            st.markdown("**🛠️ Dukungan APD:**")
+            st.markdown(f"💼 Area: **Kalimantan**")
+            st.markdown("**🛠️ Dukungan APD & PARTS:**")
             st.markdown(f"🛒 [Katalog Resmi Shopee]({aff_link})")
-            
-        with col_c2:
-            st.markdown("**☕ Apresiasi Konsultasi:**")
-            st.markdown("*Dukung engineer kami melalui:*")
-            st.markdown("🔗 **[Saweria](https://saweria.co/)**")
-            st.success("💳 Scan QR ShopeePay")
 
 # ==========================================
 # FOOTER
