@@ -73,10 +73,12 @@ with st.expander("📡 Modul 1: Radar Intelijen (Cuaca & Tender)", expanded=True
 
     with col_w2:
         st.markdown("**🏗️ Radar Tender**")
-        if st.button("🛰️ Scan Tender Kaltim", use_container_width=True):
-            with st.spinner("Memindai LPSE..."):
+        cakupan_radar = st.selectbox("Cakupan Wilayah:", ["Kalimantan Timur & IKN", "Seluruh Kalimantan", "Maluku & Indonesia Timur", "Nasional (Seluruh Indonesia)"])
+        
+        if st.button("🛰️ Scan Tender Area Terpilih", use_container_width=True):
+            with st.spinner(f"Memindai LPSE & Proyek di {cakupan_radar}..."):
                 model_radar = genai.GenerativeModel('gemini-flash-latest')
-                res = model_radar.generate_content("Cari info singkat tren proyek infrastruktur, gedung, atau tambang terbaru di Kalimantan Timur bulan ini. Buat 2 paragraf.")
+                res = model_radar.generate_content(f"Cari info singkat tren proyek infrastruktur, gedung, atau pembukaan lahan tambang terbaru di wilayah {cakupan_radar} bulan ini. Buat 2 paragraf padat yang fokus pada kebutuhan alat berat.")
                 st.session_state.project_scenario = res.text
             st.toast("Radar Tender Berhasil!")
 
