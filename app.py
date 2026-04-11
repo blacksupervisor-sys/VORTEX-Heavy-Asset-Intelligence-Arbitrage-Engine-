@@ -409,21 +409,24 @@ with st.expander("📇 Modul 11: Elite Digital Card & Identitas Resmi", expanded
         url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
         url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
 
-        # Perbaikan: Merapatkan HTML ke kiri agar tidak dibaca sebagai teks kode
-        html_logos = f"""
-<div style="text-align: center; background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;">
-    <img src="{url_azarindo}" style="height: 50px; max-width: 80%; object-fit: contain; margin-bottom: 5px;" alt="Azarindo Logo"><br>
-    <span style="font-size: 0.75em; color: #888; font-weight: bold; letter-spacing: 1px;">AUTHORIZED DEALER FOR:</span>
-    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-        <img src="{url_tatsuo}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Tatsuo Logo">
-        <div style="border-left: 1px solid #ccc; height: 20px;"></div>
-        <img src="{url_aimix}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Aimix Logo">
-        <div style="border-left: 1px solid #ccc; height: 20px;"></div>
-        <img src="{url_timehope}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Timehope Logo">
+# Masukkan kode ini ke dalam file app.py Anda, menggantikan kode kartu nama sebelumnya
+with st.container():
+    st.markdown(f"""
+    <div style="text-align: center; border: 1px solid #ddd; padding: 15px; border-radius: 8px; background-color: white;">
+        <img src="{url_azarindo}" height="45px" style="margin-bottom: 5px;">
+        <div style="color: grey; font-size: 0.75em; margin-top: 5px; margin-bottom: 5px;">AUTHORIZED DEALER FOR:</div>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 15px;">
+            <img src="{url_tatsuo}" height="22px">
+            <div style="border-left: 1px solid #ccc; height: 20px;"></div>
+            
+            <img src="{url_aimix}" height="22px">
+            <div style="border-left: 1px solid #ccc; height: 20px;"></div>
+            
+            <img src="{url_timehope}" height="32px">
+        </div>
     </div>
-</div>
-"""
-        st.markdown(html_logos, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
         
         st.divider()
 
