@@ -297,6 +297,62 @@ with st.expander("🏛️ Modul 8: LPSE Tender Hacker", expanded=False):
         else: st.warning("Upload RKS Tender dulu!")
 
 # ==========================================
+# MODUL 9: AUTO-REPORT GENERATOR (SALES REPORTING)
+# ==========================================
+with st.expander("📊 Modul 9: Laporan Sales Otomatis", expanded=False):
+    st.markdown("Ubah catatan lapangan yang berantakan menjadi Laporan Harian/Triwulan/Tahunan level Eksekutif (Siap kirim ke Manajemen).")
+    
+    col_r1, col_r2 = st.columns([1, 2])
+    with col_r1:
+        jenis_laporan = st.selectbox("Jenis Laporan", ["Laporan Harian (Daily Activity)", "Laporan Triwulan (Quarterly Review)", "Laporan Tahunan (Annual Report)"])
+        periode = st.text_input("Periode / Tanggal", placeholder="Misal: 11 April 2026 atau Q1 2026")
+        
+    with col_r2:
+        raw_notes = st.text_area("✍️ Paste Catatan Mentah (Voice Note/Ketik Cepat):", 
+                                 placeholder="Contoh: Hari ini ke tambang PT A nawarin Tatsuo, bos minta diskon. Lanjut follow up AIMIX ke PT B di Samarinda, proyek jalan bulan depan, status hot lead...", height=150)
+        
+    if st.button("📈 Generate Laporan Profesional", use_container_width=True, type="primary"):
+        if not raw_notes:
+            st.warning("⚠️ Masukkan catatan mentah kunjungan Anda terlebih dahulu!")
+        else:
+            model_report = genai.GenerativeModel('gemini-flash-latest')
+            report_prompt = f"""
+            Kamu adalah Executive Assistant untuk Elite B2B Heavy Equipment Sales.
+            Tugasmu menyusun {jenis_laporan} untuk periode {periode} berdasarkan coretan catatan lapangan ini:
+            
+            CATATAN MENTAH SALES:
+            "{raw_notes}"
+            
+            INSTRUKSI PEMBUATAN LAPORAN:
+            Ubah catatan berantakan di atas menjadi laporan korporat formal yang siap dibaca oleh Direksi.
+            Gunakan struktur baku berikut:
+            1. 📝 Ringkasan Eksekutif (Kesimpulan aktivitas periode ini)
+            2. 🏢 Rincian Kunjungan & Status Pipeline (Kategorikan prospek menjadi Hot/Warm/Cold)
+            3. 🚧 Kendala Lapangan & Analisis Kompetitor (Jika disebutkan)
+            4. 🎯 Rencana Aksi (Next Steps) & Target Follow Up
+            
+            Aturan: Gunakan bahasa bisnis yang rapi, elegan, dan menonjolkan kinerja sales. Jangan mengarang data/angka yang tidak ada di catatan mentah.
+            """
+            
+            with st.spinner(f"Menyusun {jenis_laporan}..."):
+                try:
+                    res_report = model_report.generate_content(report_prompt)
+                    st.success("Laporan Eksekutif Selesai Dibuat!")
+                    st.info(res_report.text)
+                    
+                    # Auto-Convert ke File Word
+                    doc_report = docx.Document()
+                    doc_report.add_heading(f'{jenis_laporan} - {periode}', 0)
+                    for p in res_report.text.split('\n'):
+                        if p.strip(): doc_report.add_paragraph(p.strip())
+                    bio_report = io.BytesIO()
+                    doc_report.save(bio_report)
+                    
+                    st.download_button("📄 Download File Word (Siap Kirim)", data=bio_report.getvalue(), file_name=f"Laporan_Sales_{periode}.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document", use_container_width=True)
+                except Exception as e:
+                    st.error(f"Error AI: {e}")
+                    
+# ==========================================
 # FOOTER (DEVELOPER SIGNATURE)
 # ==========================================
 st.markdown("<div class='footer'>Architected & Developed by <b>Adjie Agung</b> <br> VORTEX 4.0 - B2B Heavy-Asset Domination System</div>", unsafe_allow_html=True)
