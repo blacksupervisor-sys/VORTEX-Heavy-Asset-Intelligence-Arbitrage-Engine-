@@ -396,35 +396,34 @@ with st.expander("📊 Modul 9: Laporan Sales & Memori CRM", expanded=False):
                     st.download_button(f"📄 Download Laporan {jenis_laporan} (Word)", data=bio_a.getvalue(), file_name=f"Laporan_{jenis_laporan}.docx", mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
 
                     # ==========================================
-# MODUL 11: ELITE DIGITAL CARD & LOGOS (AZARINDO EDITION)
+# ==========================================
+# MODUL 11: ELITE DIGITAL CARD & LOGOS (FIXED)
 # ==========================================
 with st.expander("📇 Modul 11: Elite Digital Card & Identitas Resmi", expanded=True):
     st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA. Ini adalah identitas digital modern Anda.")
     
     with st.container(border=True):
-        # --- Desain Bagian Atas Kartu (Logo AZARINDO & Brand) ---
-        
-        # NOTE UNTUK ADJIE: Ganti placeholder ini dengan link logo asli di GitHub Anda nantinya.
+        # Link Logo Asli dari GitHub Anda
         url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
         url_tatsuo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TATSUO.png" 
         url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
         url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
 
-        # Layout: Azarindo di atas (Utama), 3 Brand berjajar di bawahnya
-        st.markdown(f"""
-            <div style="text-align: center; background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;">
-                <img src="{url_azarindo}" style="height: 50px; max-width: 80%; object-fit: contain; margin-bottom: 5px;" alt="Azarindo Logo"><br>
-                <span style="font-size: 0.75em; color: #888; font-weight: bold; letter-spacing: 1px;">AUTHORIZED DEALER FOR:</span>
-                
-                <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
-                    <img src="{url_tatsuo}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Tatsuo Logo">
-                    <div style="border-left: 1px solid #ccc; height: 20px;"></div>
-                    <img src="{url_aimix}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Aimix Logo">
-                    <div style="border-left: 1px solid #ccc; height: 20px;"></div>
-                    <img src="{url_timehope}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Timehope Logo">
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+        # Perbaikan: Merapatkan HTML ke kiri agar tidak dibaca sebagai teks kode
+        html_logos = f"""
+<div style="text-align: center; background-color: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;">
+    <img src="{url_azarindo}" style="height: 50px; max-width: 80%; object-fit: contain; margin-bottom: 5px;" alt="Azarindo Logo"><br>
+    <span style="font-size: 0.75em; color: #888; font-weight: bold; letter-spacing: 1px;">AUTHORIZED DEALER FOR:</span>
+    <div style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap;">
+        <img src="{url_tatsuo}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Tatsuo Logo">
+        <div style="border-left: 1px solid #ccc; height: 20px;"></div>
+        <img src="{url_aimix}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Aimix Logo">
+        <div style="border-left: 1px solid #ccc; height: 20px;"></div>
+        <img src="{url_timehope}" style="height: 25px; max-width: 30%; object-fit: contain;" alt="Timehope Logo">
+    </div>
+</div>
+"""
+        st.markdown(html_logos, unsafe_allow_html=True)
         
         st.divider()
 
