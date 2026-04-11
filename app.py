@@ -222,7 +222,81 @@ with st.container(border=True):
                     st.info(response_sniper.text)
                 except Exception as e:
                     st.error(f"Error: {e}")
-                    
+
+# ==========================================
+# MODUL 5: B2B FINANCIAL SNIPER (ROI & BEP GENERATOR)
+# ==========================================
+st.divider()
+st.header("💰 Modul 5: B2B Financial Sniper (ROI & BEP Generator)")
+with st.container(border=True):
+    st.markdown("Ubah ketertarikan prospek menjadi *closing* dengan memberikan perhitungan matematis mengapa alat Anda adalah investasi, bukan pengeluaran.")
+    
+    col_f1, col_f2 = st.columns(2)
+    
+    with col_f1:
+        st.subheader("📊 Input Data Proyek Prospek")
+        investasi = st.number_input("Harga Beli Unit (Rp)", min_value=0, value=1500000000, step=10000000)
+        produksi_harian = st.number_input("Target Produksi Harian (m3 / titik)", min_value=1, value=100)
+        harga_jual = st.number_input("Harga Jual Output / Profit per (m3 / titik) (Rp)", min_value=0, value=150000)
+        
+    with col_f2:
+        st.subheader("⚙️ Komparasi Operasional Bulanan")
+        biaya_operasional = st.number_input("Biaya Operasional Alat Ini (BBM, Operator, Maintenance/bln) (Rp)", min_value=0, value=30000000, step=1000000)
+        biaya_konvensional = st.number_input("Biaya Cara Lama (Sewa alat/manual) per bulan (Rp)", min_value=0, value=80000000, step=1000000)
+        hari_kerja = st.number_input("Jumlah Hari Kerja per Bulan", min_value=1, max_value=31, value=25)
+
+    if st.button("🧮 Generate Laporan ROI & Eksekutif Proposal", use_container_width=True, type="primary"):
+        # 1. Kalkulasi Matematis Dasar (Hard Logic)
+        pendapatan_kotor_bulanan = produksi_harian * harga_jual * hari_kerja
+        profit_bersih_bulanan = pendapatan_kotor_bulanan - biaya_operasional
+        penghematan_bulanan = biaya_konvensional - biaya_operasional
+        
+        # Hindari pembagian dengan nol
+        if profit_bersih_bulanan > 0:
+            bep_bulan = investasi / profit_bersih_bulanan
+        else:
+            bep_bulan = 0
+            
+        roi_tahunan = (profit_bersih_bulanan * 12) / investasi * 100 if investasi > 0 else 0
+
+        # Menampilkan Metrik di UI
+        st.markdown("### 📈 Ringkasan Kalkulasi Mesin")
+        met1, met2, met3, met4 = st.columns(4)
+        met1.metric("Profit Bersih / Bulan", f"Rp {profit_bersih_bulanan:,.0f}")
+        met2.metric("Penghematan / Bulan", f"Rp {penghematan_bulanan:,.0f}")
+        met3.metric("Payback Period (BEP)", f"{bep_bulan:.1f} Bulan")
+        met4.metric("ROI Tahunan", f"{roi_tahunan:.1f} %")
+        
+        # 2. Injeksi ke AI untuk Dibuatkan Proposal Eksekutif
+        model_finance = genai.GenerativeModel('gemini-1.5-flash-latest')
+        
+        finance_prompt = f"""
+        Kamu adalah Chief Financial Officer (CFO) dan Elite B2B Sales. 
+        Tugasmu menyusun 'Executive Summary' untuk prospek alat berat ({brand} {unit_type}).
+        
+        DATA MATEMATIS PROYEK:
+        - Harga Investasi: Rp {investasi:,.0f}
+        - Profit Bersih/Bulan: Rp {profit_bersih_bulanan:,.0f}
+        - Payback Period (BEP): {bep_bulan:.1f} bulan
+        - ROI Tahunan: {roi_tahunan:.1f} %
+        - Penghematan dari cara lama: Rp {penghematan_bulanan:,.0f} per bulan.
+        
+        ATURAN PENULISAN:
+        1. Buat proposal yang sangat meyakinkan, elegan, dan ditujukan untuk Direktur/Owner.
+        2. Jangan terlihat seperti hitungan robot, jelaskan bahwa alat ini BUKAN BIAYA, tapi MESIN PENCETAK UANG.
+        3. Jelaskan bahwa dalam waktu {bep_bulan:.1f} bulan, alat ini sudah gratis (balik modal), dan bulan berikutnya adalah murni profit.
+        4. Akhiri dengan ajakan untuk menerbitkan Purchase Order (PO) atau meeting final.
+        """
+        
+        with st.spinner("Merumuskan Proposal Eksekutif..."):
+            try:
+                response_finance = model_finance.generate_content(finance_prompt)
+                st.success("Proposal Finansial Selesai!")
+                st.markdown("### 📄 Draft Executive Summary (Siap Kirim ke Direktur Prospek)")
+                st.info(response_finance.text)
+            except Exception as e:
+                st.error(f"Error AI: {e}")
+                
 # ==========================================
 # HASIL EKSEKUSI & SCHEDULING
 # ==========================================
