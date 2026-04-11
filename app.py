@@ -33,7 +33,7 @@ with st.sidebar:
     
     st.divider()
     st.subheader("📡 VORTEX Engine Status")
-    st.success("Model: gemini-1.5-flash-latest")
+    st.success("Model: gemini-flash-latest")
     st.info("Brand Library: AIMIX, Tatsuo, New Timehope")
     
     st.divider()
@@ -64,7 +64,7 @@ with st.container(border=True):
         st.markdown("**🏗️ Radar Tender & Proyek**")
         if st.button("🛰️ Scan Tender Terbaru (Kaltim/IKN)", use_container_width=True):
             with st.spinner("Memindai berita proyek & LPSE..."):
-                model_radar = genai.GenerativeModel('gemini-1.5-flash-latest')
+                model_radar = genai.GenerativeModel('gemini-flash-latest')
                 res = model_radar.generate_content("Cari info singkat tren proyek infrastruktur, gedung, atau tambang terbaru di Kalimantan Timur bulan ini. Buat dalam 2 paragraf singkat.")
                 st.session_state.project_scenario = res.text
                 st.success("Radar Tender Berhasil!")
