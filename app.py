@@ -285,7 +285,7 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
         "<div style='position: relative; z-index: 1;'>"
         
         # HEADER (Kiri: Unit, Tengah: Logo, Kanan: Unit)
-        "<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;'>"
+        "<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;'>"
         # Kotak Kiri (Gambar Unit 1)
         f"<div style='flex: 0 0 auto;'><img src='{"https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/EXAVATOR.png"}' style='width: 110px; height: 85px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'></div>"
         # Kotak Tengah (Logo Dealer)
@@ -295,7 +295,7 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
         "<div style='display: flex; justify-content: center; align-items: center; gap: 8px;'>"
         f"<img src='{url_tatsuo}' height='18px' alt='Tatsuo Logo'>"
         "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
-        f"<img src='{url_aimix}' height='18px' alt='Aimix Logo'>"
+        f"<img src='{url_aimix}' height='26px' alt='Aimix Logo'>"
         "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
         f"<img src='{url_timehope}' height='26px' alt='Timehope Logo'>"
         "</div>"
