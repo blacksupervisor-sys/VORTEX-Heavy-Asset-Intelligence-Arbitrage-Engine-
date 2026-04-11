@@ -1,4 +1,3 @@
-import os
 import streamlit as st
 import google.generativeai as genai
 import json
@@ -7,6 +6,7 @@ from PIL import Image
 import datetime
 import io
 import docx
+import os
 
 # ==========================================
 # KONFIGURASI HALAMAN & STATE MANAGEMENT
