@@ -260,10 +260,15 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
 with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
     st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA. Ini adalah identitas korporat modern Anda.")
     
+    # Link Logo
     url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
     url_tatsuo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TATSUO.png" 
     url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
     url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
+
+    # NOTE UNTUK ADJIE: Ganti link di bawah ini dengan link gambar Excavator/Loader Anda yang di-upload ke GitHub
+    url_unit_kiri = "https://images.unsplash.com/photo-1582214486982-f54f7e279fcc?q=80&w=300&auto=format&fit=crop" # Placeholder Excavator
+    url_unit_kanan = "https://images.unsplash.com/photo-1621877665427-466c06a3e21c?q=80&w=300&auto=format&fit=crop" # Placeholder Mixer/Plant
 
     # Membuat QR Code dinamis dari link Affiliate Anda
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={aff_link}"
@@ -271,26 +276,44 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
     # Metode penggabungan string (Bulletproof HTML)
     html_card = (
         "<div style='position: relative; border: 1px solid #eaeaea; border-radius: 12px; background-color: #ffffff; padding: 25px; box-shadow: 0px 10px 20px rgba(0,0,0,0.05); overflow: hidden;'>"
+        
+        # Watermark Latar Belakang
         "<div style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: 0;'>"
         f"<img src='{url_azarindo}' style='width: 350px;'>"
         "</div>"
+        
         "<div style='position: relative; z-index: 1;'>"
-        "<div style='text-align: center; margin-bottom: 25px;'>"
-        f"<img src='{url_azarindo}' height='50px' style='margin-bottom: 5px;' alt='Azarindo Logo'>"
-        "<div style='color: #7f8c8d; font-size: 0.75em; margin-top: 5px; margin-bottom: 10px; font-weight: bold; letter-spacing: 1.5px;'>AUTHORIZED DEALER FOR:</div>"
-        "<div style='display: flex; justify-content: center; align-items: center; gap: 15px;'>"
-        f"<img src='{url_tatsuo}' height='22px' alt='Tatsuo Logo'>"
-        "<div style='border-left: 1px solid #ccc; height: 20px;'></div>"
-        f"<img src='{url_aimix}' height='22px' alt='Aimix Logo'>"
-        "<div style='border-left: 1px solid #ccc; height: 20px;'></div>"
-        f"<img src='{url_timehope}' height='32px' alt='Timehope Logo'>"
+        
+        # HEADER (Kiri: Unit, Tengah: Logo, Kanan: Unit)
+        "<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;'>"
+        # Kotak Kiri (Gambar Unit 1)
+        f"<div style='flex: 0 0 auto;'><img src='{"https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/EXAVATOR.png"}' style='width: 110px; height: 85px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'></div>"
+        # Kotak Tengah (Logo Dealer)
+        "<div style='flex: 1; text-align: center; padding: 0 10px;'>"
+        f"<img src='{url_azarindo}' height='45px' style='margin-bottom: 3px;' alt='Azarindo Logo'>"
+        "<div style='color: #7f8c8d; font-size: 0.65em; margin-top: 5px; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px;'>AUTHORIZED DEALER FOR:</div>"
+        "<div style='display: flex; justify-content: center; align-items: center; gap: 8px;'>"
+        f"<img src='{url_tatsuo}' height='18px' alt='Tatsuo Logo'>"
+        "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
+        f"<img src='{url_aimix}' height='18px' alt='Aimix Logo'>"
+        "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
+        f"<img src='{url_timehope}' height='26px' alt='Timehope Logo'>"
         "</div>"
         "</div>"
+        # Kotak Kanan (Gambar Unit 2)
+        f"<div style='flex: 0 0 auto;'><img src='{"https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/SLM.png"}' style='width: 110px; height: 85px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'></div>"
+        "</div>"
+        
+        # Garis Pemisah
         "<hr style='border: 0; border-top: 1px solid #f0f0f0; margin: 20px 0;'>"
+        
+        # Nama & Jabatan (Tengah)
         "<div style='text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
         "<p style='color: #95a5a6; margin: 5px 0 0 0; font-size: 12px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
         "</div>"
+        
+        # Footer (Kontak & QR Code)
         "<div style='display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap;'>"
         "<div style='flex: 1; min-width: 200px; font-size: 13px; color: #34495e; line-height: 1.9;'>"
         "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>AZARINDO.ID</span></div>"
@@ -303,6 +326,7 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
         "<div style='color: #7f8c8d; font-size: 10px; margin-top: 8px; font-weight: bold; letter-spacing: 0.5px;'>E-STORE SUKU CADANG & APD</div>"
         "</div>"
         "</div>"
+        
         "</div>"
         "</div>"
     )
