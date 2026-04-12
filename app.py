@@ -255,39 +255,57 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
             st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
 
 # ==========================================
-# MODUL 11: ELITE DIGITAL CARD (MOBILE OPTIMIZED)
+# MODUL 11: ELITE DIGITAL CARD (MULTI-DRAG & DROP)
 # ==========================================
-with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
-    st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA. Ini adalah identitas korporat modern Anda.")
+import base64 # Library untuk menerjemahkan gambar ke HTML
+
+with st.expander("📇 Modul 11: Elite Digital Card & Identitas", expanded=True):
+    st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA.")
     
-    # Link Logo
+    # --- FITUR DRAG & DROP MULTIPLE BACKGROUND ---
+    st.markdown("**🖼️ Kustomisasi Latar Belakang (Bisa Upload 1 hingga 3 Gambar sekaligus)**")
+    # PERUBAHAN: accept_multiple_files=True ditambahkan di sini
+    bg_uploads = st.file_uploader("Drag & Drop gambar alat berat (Tatsuo, Aimix, dll):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+
+    # Link Logo Dealer
     url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
     url_tatsuo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TATSUO.png" 
     url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
     url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
 
-    # NOTE UNTUK ADJIE: Ganti link di bawah ini dengan link gambar unit asli Anda dari GitHub
-    url_bg_tatsuo = "https://images.unsplash.com/photo-1582214486982-f54f7e279fcc?q=80&w=600&auto=format&fit=crop" # Placeholder Excavator
-    url_bg_aimix = "https://images.unsplash.com/photo-1621877665427-466c06a3e21c?q=80&w=600&auto=format&fit=crop" # Placeholder Mixer
-    url_bg_timehope = "https://images.unsplash.com/photo-1508450859948-4e04fabaa4ea?q=80&w=600&auto=format&fit=crop" # Placeholder Crane/Piling
-
     # Membuat QR Code dinamis dari link Affiliate
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={aff_link}"
 
-    # Metode penggabungan string (Bulletproof HTML untuk Mobile)
-    html_card = (
-        "<div style='position: relative; border: 1px solid #eaeaea; border-radius: 12px; background-color: #ffffff; padding: 25px; box-shadow: 0px 10px 20px rgba(0,0,0,0.05); overflow: hidden;'>"
+    # --- LOGIKA LATAR BELAKANG MULTIPLE OTOMATIS ---
+    bg_html = ""
+    if bg_uploads:
+        # Ambil maksimal 3 gambar pertama saja (agar tidak terlalu penuh)
+        images_to_use = bg_uploads[:3]
         
-        # --- 3 GAMBAR PRODUK SEBAGAI BACKGROUND (SANGAT SAMAR & ELEGAN) ---
-        "<div style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; opacity: 0.1; filter: grayscale(100%);'>"
-        f"<div style='flex: 1; background-image: url({url_bg_tatsuo}); background-size: cover; background-position: center; border-right: 1px solid #fff;'></div>"
-        f"<div style='flex: 1; background-image: url({url_bg_aimix}); background-size: cover; background-position: center; border-right: 1px solid #fff;'></div>"
-        f"<div style='flex: 1; background-image: url({url_bg_timehope}); background-size: cover; background-position: center;'></div>"
-        "</div>"
+        # Buka container background (Mode Flexbox sejajar)
+        bg_html += "<div style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; opacity: 0.15; filter: grayscale(70%);'>"
+        
+        # Looping: Terjemahkan setiap gambar yang diupload ke Base64
+        for img in images_to_use:
+            base64_img = base64.b64encode(img.read()).decode("utf-8")
+            # Bagi rata ruang layar (flex: 1) untuk setiap gambar
+            bg_html += f"<div style='flex: 1; background-image: url(data:{img.type};base64,{base64_img}); background-size: cover; background-position: center; border-right: 1px solid rgba(255,255,255,0.3);'></div>"
+            
+        bg_html += "</div>" # Tutup container
+    else:
+        # Jika belum ada gambar yang diupload, pakai Watermark Azarindo
+        bg_html = f"<div style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: 0;'><img src='{url_azarindo}' style='width: 350px;'></div>"
+
+    # --- RENDER KARTU NAMA ---
+    html_card = (
+        "<div style='position: relative; border: 1px solid #eaeaea; border-radius: 12px; background-color: #ffffff; padding: 25px; box-shadow: 0px 10px 20px rgba(0,0,0,0.05); overflow: hidden; margin-top: 15px;'>"
+        
+        # Injeksi Background Dinamis (Bisa 1, 2, atau 3 gambar)
+        f"{bg_html}"
         
         "<div style='position: relative; z-index: 1;'>"
         
-        # --- HEADER LOGO (Dilebarkan agar aman di HP) ---
+        # Header Logo
         "<div style='text-align: center; margin-bottom: 30px;'>"
         f"<img src='{url_azarindo}' height='50px' style='margin-bottom: 5px;' alt='Azarindo Logo'>"
         "<div style='color: #7f8c8d; font-size: 0.7em; margin-top: 5px; margin-bottom: 12px; font-weight: bold; letter-spacing: 1.5px;'>AUTHORIZED DEALER FOR:</div>"
@@ -300,16 +318,15 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
         "</div>"
         "</div>"
         
-        # --- GARIS PEMISAH ---
         "<hr style='border: 0; border-top: 1px solid #f0f0f0; margin: 20px 0;'>"
         
-        # --- NAMA & JABATAN ---
+        # Nama & Jabatan
         "<div style='text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
         "<p style='color: #95a5a6; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
         "</div>"
         
-        # --- FOOTER KONTAK & QR CODE (Responsif untuk layar kecil) ---
+        # Footer
         "<div style='display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;'>"
         "<div style='flex: 1 1 180px; font-size: 12px; color: #34495e; line-height: 2.0;'>"
         "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>AZARINDO.ID</span></div>"
