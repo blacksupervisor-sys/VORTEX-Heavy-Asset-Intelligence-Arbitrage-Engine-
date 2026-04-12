@@ -260,7 +260,7 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
 import base64 
 
 with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expanded=True):
-    st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA.")
+    st.markdown("*screenshot*")
     st.divider()
 
     # --- BAGIAN 1: PENGATURAN KUSTOMISASI ---
@@ -282,8 +282,8 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
     st.divider()
 
     # Drag & Drop Background
-    st.markdown("**🖼️ Drag & Drop Gambar Latar Belakang**")
-    st.caption("Fokus Dual: Masukkan 1 gambar Tatsuo & 1 gambar Aimix sekaligus. Fokus Single: Masukkan 1 gambar saja.")
+    st.markdown("**🖼️ Drag & Drop Background**")
+    st.caption("Fokus Dual: input Tatsuo & Aimix . Fokus Single: input 1 visual.")
     bg_uploads = st.file_uploader("Upload gambar (PNG/JPG):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
     # --- BAGIAN 2: DATA & LOGIKA DINAMIS ---
@@ -389,7 +389,7 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
     
     with col_btn1:
         # Teks otomatis untuk WhatsApp
-        pesan_wa = "Selamat pagi/siang Bapak/Ibu. Perkenalkan saya Adjie Agung, Heavy Equipment Specialist dari Azarindo. Berikut saya lampirkan kartu nama digital saya. Jika proyek Anda membutuhkan efisiensi dan perhitungan ROI untuk alat berat (Excavator, Concrete Pump, HSPD), saya siap membantu. Terima kasih."
+        pesan_wa = "Selamat pagi/siang Bapak/Ibu. Perkenalkan saya Adjie Agung, Heavy Equipment Specialist dari Azarindo. Berikut saya lampirkan kartu nama digital saya. Jika proyek Anda membutuhkan alat Konstruksi yang efisiensi (Excavator wheel track, Self Loading mixer, Concrete Pump, HSPD), saya siap membantu. Terima kasih."
         link_wa = f"https://api.whatsapp.com/send?text={pesan_wa.replace(' ', '%20')}"
         st.markdown(f'<a href="{link_wa}" target="_blank" style="display: block; text-align: center; background-color: #25D366; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;">💬 Kirim Pengantar WA</a>', unsafe_allow_html=True)
 
@@ -399,10 +399,10 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
 VERSION:3.0
 N:Agung;Adjie;;;
 FN:Adjie Agung
-TITLE:Heavy Equipment Sales Specialist
+TITLE:Heavy Equipment Sales
 ORG:Azarindo (Tatsuo, AIMIX, Timehope)
 TEL;TYPE=CELL:{wa_num}
-URL:AZARINDO.ID
+URL:azarindo.id
 END:VCARD"""
         st.download_button(
             label="📇 Download File Kontak (vCard)",
