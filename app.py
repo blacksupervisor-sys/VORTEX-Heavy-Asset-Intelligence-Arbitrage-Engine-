@@ -255,32 +255,78 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
             st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
 
 # ==========================================
-# MODUL 11: ELITE DIGITAL CARD (MULTI-DRAG & DROP)
+# MODUL 11: ELITE DIGITAL CARD (DUAL-CORE EDITION)
 # ==========================================
-import base64 # Library untuk menerjemahkan gambar ke HTML
+import base64 # Library untuk menerjemahkan gambar ke HTML (Pastikan ada di app.py)
 
-with st.expander("📇 Modul 11: Elite Digital Card & Identitas", expanded=True):
+with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expanded=True):
     st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA.")
-    
-    # --- FITUR DRAG & DROP MULTIPLE BACKGROUND ---
-    st.markdown("**🖼️ Kustomisasi Background)**")
-    # PERUBAHAN: accept_multiple_files=True ditambahkan di sini
-    bg_uploads = st.file_uploader("Tatsuo + Aimix):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+    st.divider()
 
+    # --- BAGIAN 1: PENGATURAN KUSTOMISASI (SIDEBAR DALAM MODUL) ---
+    st.markdown("**🛠️ Pengaturan Tampilan Kartu**")
+    
+    # PERUBAHAN UTAMA: Tombol Pilihan Desain
+    card_choice = st.radio(
+        "Pilih Fokus Desain Kartu Anda:",
+        [
+            "Dual-Focus (Tatsuo & Aimix Only)", # Pilihan 1 (Utama)
+            "Single-Focus Dynamic (Sesuai Produk di Modul 2)" # Pilihan 2 (Second Choice)
+        ],
+        horizontal=True
+    )
+
+    st.divider()
+
+    # PERUBAHAN UTAMA: Multi-Drag & Drop Background (Bisa 1 atau 2 Gambar)
+    st.markdown("**🖼️ Drag & Drop Gambar Latar Belakang**")
+    st.caption("Fokus Dual: Masukkan 1 gambar Tatsuo & 1 gambar Aimix sekaligus. Fokus Single: Masukkan 1 gambar saja.")
+    bg_uploads = st.file_uploader("Upload gambar (PNG/JPG):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+
+    # --- BAGIAN 2: DATA & LOGIKA DINAMIS ---
+    
     # Link Logo Dealer
     url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
     url_tatsuo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TATSUO.png" 
     url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
-    url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
+    # url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png" # Di-comment karena fokus Dual hanya Tatsuo-Aimix
 
     # Membuat QR Code dinamis dari link Affiliate
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={aff_link}"
 
-    # --- LOGIKA LATAR BELAKANG MULTIPLE OTOMATIS ---
+    # Logika Penentuan Logo & Warna (Dinamis atau Statis)
+    header_logo_html = ""
+    accent_color = ""
+
+    if card_choice == "Dual-Focus (Tatsuo & Aimix Only)":
+        # Desain Utama: Menampilkan kedua logo berdampingan
+        accent_color = "#E74C3C" # Merah Azarindo sebagai warna netral
+        header_logo_html = (
+            "<div style='display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;'>"
+            f"<img src='{url_tatsuo}' height='20px' alt='Tatsuo Logo'>"
+            "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
+            f"<img src='{url_aimix}' height='20px' alt='Aimix Logo'>"
+            "</div>"
+        )
+    else:
+        # Desain 'Second Choice': Berganti SKIN secara dinamis mengikuti produk di Modul 2
+        # Kita ambil variabel 'brand' yang sudah Anda pilih di bagian atas app.py
+        if brand == "Tatsuo":
+            header_logo_html = f"<img src='{url_tatsuo}' height='25px' style='margin-top: 5px;'>"
+            accent_color = "#FFD700" # Kuning Emas Tatsuo
+        elif brand == "AIMIX":
+            header_logo_html = f"<img src='{url_aimix}' height='25px' style='margin-top: 5px;'>"
+            accent_color = "#1E90FF" # Biru AIMIX
+        else: # Timehope (Jika dipilih di Modul 2)
+            url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
+            header_logo_html = f"<img src='{url_timehope}' height='35px' style='margin-top: 5px;'>"
+            accent_color = "#000000" # Hitam/Netral
+
+    # Logika Latar Belakang Multiple (Dukungan Drag & Drop)
     bg_html = ""
     if bg_uploads:
-        # Ambil maksimal 3 gambar pertama saja (agar tidak terlalu penuh)
-        images_to_use = bg_uploads[:3]
+        # Ambil maksimal 2 gambar saja (Tatsuo & Aimix)
+        images_to_use = bg_uploads[:2]
         
         # Buka container background (Mode Flexbox sejajar)
         bg_html += "<div style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; opacity: 0.15; filter: grayscale(70%);'>"
@@ -293,43 +339,45 @@ with st.expander("📇 Modul 11: Elite Digital Card & Identitas", expanded=True)
             
         bg_html += "</div>" # Tutup container
     else:
-        # Jika belum ada gambar yang diupload, pakai Watermark Azarindo
+        # Jika belum ada gambar yang diupload, pakai Watermark Azarindo statis
         bg_html = f"<div style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: 0;'><img src='{url_azarindo}' style='width: 350px;'></div>"
 
-    # --- RENDER KARTU NAMA ---
+    # --- BAGIAN 3: RENDER KARTU NAMA (HTML & CSS) ---
+    st.divider()
+    st.markdown("**📱 Preview Kartu Nama Digital Anda**")
+
+    # Metode penggabungan string (Bulletproof HTML untuk Mobile)
     html_card = (
-        "<div style='position: relative; border: 1px solid #eaeaea; border-radius: 12px; background-color: #ffffff; padding: 25px; box-shadow: 0px 10px 20px rgba(0,0,0,0.05); overflow: hidden; margin-top: 15px;'>"
+        f"<div style='position: relative; border: 2px solid {accent_color}; border-radius: 12px; background-color: #ffffff; padding: 25px; box-shadow: 0px 10px 20px rgba(0,0,0,0.05); overflow: hidden; margin-top: 15px;'>"
         
-        # Injeksi Background Dinamis (Bisa 1, 2, atau 3 gambar)
+        # Injeksi Background Dinamis (Upload / Watermark)
         f"{bg_html}"
         
         "<div style='position: relative; z-index: 1;'>"
         
-        # Header Logo
+        # Header Logo (Dilebarkan agar aman di HP)
         "<div style='text-align: center; margin-bottom: 30px;'>"
         f"<img src='{url_azarindo}' height='50px' style='margin-bottom: 5px;' alt='Azarindo Logo'>"
-        "<div style='color: #7f8c8d; font-size: 0.7em; margin-top: 5px; margin-bottom: 12px; font-weight: bold; letter-spacing: 1.5px;'>AUTHORIZED DEALER FOR:</div>"
-        "<div style='display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;'>"
-        f"<img src='{url_tatsuo}' height='20px' alt='Tatsuo Logo'>"
-        "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
-        f"<img src='{url_aimix}' height='35px' alt='Aimix Logo'>"
-        "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
-        f"<img src='{url_timehope}' height='28px' alt='Timehope Logo'>"
-        "</div>"
+        "<div style='color: #7f8c8d; font-size: 0.7em; margin-top: 5px; margin-bottom: 12px; font-weight: bold; letter-spacing: 1.5px;'>OFFICIAL PARTNER:</div>"
+        
+        # Injeksi Logo Dinamis/Statis berdasarkan Pilihan Desain
+        f"{header_logo_html}"
+        
         "</div>"
         
-        "<hr style='border: 0; border-top: 1px solid #f0f0f0; margin: 20px 0;'>"
+        # Garis Pemisah (Warna mengikuti Aksen)
+        f"<hr style='border: 0; border-top: 2px solid {accent_color}; opacity: 0.2; margin: 20px 0;'>"
         
         # Nama & Jabatan
         "<div style='text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
-        "<p style='color: #95a5a6; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES </p>"
+        f"<p style='color: {accent_color}; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
         "</div>"
         
-        # Footer
+        # Footer Kontak & QR Code (Mobile Responsive)
         "<div style='display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;'>"
         "<div style='flex: 1 1 180px; font-size: 12px; color: #34495e; line-height: 2.0;'>"
-        "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>azarindo.id</span></div>"
+        "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>AZARINDO.ID</span></div>"
         f"<div>📱 <b>WhatsApp:</b> {wa_num}</div>"
         "<div>💼 <b>Area:</b> Kalimantan & Timur</div>"
         "<div>🏢 <b>Kantor:</b> Samarinda, Kaltim</div>"
