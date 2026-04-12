@@ -255,7 +255,7 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
             st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
 
 # ==========================================
-# MODUL 11: ELITE DIGITAL CARD (BULLETPROOF RENDER)
+# MODUL 11: ELITE DIGITAL CARD (MOBILE OPTIMIZED)
 # ==========================================
 with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
     st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA. Ini adalah identitas korporat modern Anda.")
@@ -266,64 +266,60 @@ with st.expander("📇 Modul 11: Elite Digital Card", expanded=True):
     url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
     url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
 
-    # NOTE UNTUK ADJIE: Ganti link di bawah ini dengan link gambar Excavator/Loader Anda yang di-upload ke GitHub
-    url_unit_kiri = "https://images.unsplash.com/photo-1582214486982-f54f7e279fcc?q=80&w=300&auto=format&fit=crop" # Placeholder Excavator
-    url_unit_kanan = "https://images.unsplash.com/photo-1621877665427-466c06a3e21c?q=80&w=300&auto=format&fit=crop" # Placeholder Mixer/Plant
+    # NOTE UNTUK ADJIE: Ganti link di bawah ini dengan link gambar unit asli Anda dari GitHub
+    url_bg_tatsuo = "https://images.unsplash.com/photo-1582214486982-f54f7e279fcc?q=80&w=600&auto=format&fit=crop" # Placeholder Excavator
+    url_bg_aimix = "https://images.unsplash.com/photo-1621877665427-466c06a3e21c?q=80&w=600&auto=format&fit=crop" # Placeholder Mixer
+    url_bg_timehope = "https://images.unsplash.com/photo-1508450859948-4e04fabaa4ea?q=80&w=600&auto=format&fit=crop" # Placeholder Crane/Piling
 
-    # Membuat QR Code dinamis dari link Affiliate Anda
+    # Membuat QR Code dinamis dari link Affiliate
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={aff_link}"
 
-    # Metode penggabungan string (Bulletproof HTML)
+    # Metode penggabungan string (Bulletproof HTML untuk Mobile)
     html_card = (
         "<div style='position: relative; border: 1px solid #eaeaea; border-radius: 12px; background-color: #ffffff; padding: 25px; box-shadow: 0px 10px 20px rgba(0,0,0,0.05); overflow: hidden;'>"
         
-        # Watermark Latar Belakang
-        "<div style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: 0;'>"
-        f"<img src='{url_azarindo}' style='width: 350px;'>"
+        # --- 3 GAMBAR PRODUK SEBAGAI BACKGROUND (SANGAT SAMAR & ELEGAN) ---
+        "<div style='position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; display: flex; opacity: 0.1; filter: grayscale(100%);'>"
+        f"<div style='flex: 1; background-image: url({url_bg_tatsuo}); background-size: cover; background-position: center; border-right: 1px solid #fff;'></div>"
+        f"<div style='flex: 1; background-image: url({url_bg_aimix}); background-size: cover; background-position: center; border-right: 1px solid #fff;'></div>"
+        f"<div style='flex: 1; background-image: url({url_bg_timehope}); background-size: cover; background-position: center;'></div>"
         "</div>"
         
         "<div style='position: relative; z-index: 1;'>"
         
-        # HEADER (Kiri: Unit, Tengah: Logo, Kanan: Unit)
-        "<div style='display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;'>"
-        # Kotak Kiri (Gambar Unit 1)
-        f"<div style='flex: 0 0 auto;'><img src='{"https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/EXAVATOR.png"}' style='width: 110px; height: 85px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'></div>"
-        # Kotak Tengah (Logo Dealer)
-        "<div style='flex: 1; text-align: center; padding: 0 10px;'>"
-        f"<img src='{url_azarindo}' height='45px' style='margin-bottom: 3px;' alt='Azarindo Logo'>"
-        "<div style='color: #7f8c8d; font-size: 0.65em; margin-top: 5px; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px;'>AUTHORIZED DEALER FOR:</div>"
-        "<div style='display: flex; justify-content: center; align-items: center; gap: 8px;'>"
-        f"<img src='{url_tatsuo}' height='18px' alt='Tatsuo Logo'>"
+        # --- HEADER LOGO (Dilebarkan agar aman di HP) ---
+        "<div style='text-align: center; margin-bottom: 30px;'>"
+        f"<img src='{url_azarindo}' height='50px' style='margin-bottom: 5px;' alt='Azarindo Logo'>"
+        "<div style='color: #7f8c8d; font-size: 0.7em; margin-top: 5px; margin-bottom: 12px; font-weight: bold; letter-spacing: 1.5px;'>AUTHORIZED DEALER FOR:</div>"
+        "<div style='display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;'>"
+        f"<img src='{url_tatsuo}' height='20px' alt='Tatsuo Logo'>"
         "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
-        f"<img src='{url_aimix}' height='26px' alt='Aimix Logo'>"
+        f"<img src='{url_aimix}' height='20px' alt='Aimix Logo'>"
         "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
-        f"<img src='{url_timehope}' height='26px' alt='Timehope Logo'>"
+        f"<img src='{url_timehope}' height='28px' alt='Timehope Logo'>"
         "</div>"
-        "</div>"
-        # Kotak Kanan (Gambar Unit 2)
-        f"<div style='flex: 0 0 auto;'><img src='{"https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/SLM.png"}' style='width: 110px; height: 85px; object-fit: cover; border-radius: 6px; border: 1px solid #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05);'></div>"
         "</div>"
         
-        # Garis Pemisah
+        # --- GARIS PEMISAH ---
         "<hr style='border: 0; border-top: 1px solid #f0f0f0; margin: 20px 0;'>"
         
-        # Nama & Jabatan (Tengah)
+        # --- NAMA & JABATAN ---
         "<div style='text-align: center; margin-bottom: 35px;'>"
-        "<h1 style='color: #2c3e50; margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
-        "<p style='color: #95a5a6; margin: 5px 0 0 0; font-size: 12px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
+        "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
+        "<p style='color: #95a5a6; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
         "</div>"
         
-        # Footer (Kontak & QR Code)
-        "<div style='display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap;'>"
-        "<div style='flex: 1; min-width: 200px; font-size: 13px; color: #34495e; line-height: 1.9;'>"
+        # --- FOOTER KONTAK & QR CODE (Responsif untuk layar kecil) ---
+        "<div style='display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;'>"
+        "<div style='flex: 1 1 180px; font-size: 12px; color: #34495e; line-height: 2.0;'>"
         "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>AZARINDO.ID</span></div>"
         f"<div>📱 <b>WhatsApp:</b> {wa_num}</div>"
-        "<div>💼 <b>Area:</b> Kalimantan & Indonesia Timur</div>"
-        "<div>🏢 <b>Kantor:</b> Samarinda, Kalimantan Timur</div>"
+        "<div>💼 <b>Area:</b> Kalimantan & Timur</div>"
+        "<div>🏢 <b>Kantor:</b> Samarinda, Kaltim</div>"
         "</div>"
-        "<div style='flex: 1; min-width: 120px; text-align: right; display: flex; flex-direction: column; align-items: flex-end;'>"
-        f"<img src='{qr_url}' style='width: 75px; height: 75px; border: 1px solid #eee; padding: 5px; border-radius: 6px; background: #fff;' alt='QR Code'>"
-        "<div style='color: #7f8c8d; font-size: 10px; margin-top: 8px; font-weight: bold; letter-spacing: 0.5px;'>E-STORE SUKU CADANG & APD</div>"
+        "<div style='flex: 0 0 auto; text-align: center; margin: 0 auto;'>"
+        f"<img src='{qr_url}' style='width: 75px; height: 75px; border: 1px solid #eee; padding: 5px; border-radius: 6px; background: #fff;' alt='QR Code'><br>"
+        "<span style='color: #7f8c8d; font-size: 9px; font-weight: bold; letter-spacing: 0.5px;'>E-STORE SUKU CADANG</span>"
         "</div>"
         "</div>"
         
