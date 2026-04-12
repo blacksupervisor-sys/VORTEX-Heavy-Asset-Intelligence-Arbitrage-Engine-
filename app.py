@@ -315,7 +315,7 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
             header_logo_html = f"<img src='{url_tatsuo}' height='25px' style='margin-top: 5px;'>"
             accent_color = "#FFD700" # Kuning Emas Tatsuo
         elif brand == "AIMIX":
-            header_logo_html = f"<img src='{url_aimix}' height='25px' style='margin-top: 5px;'>"
+            header_logo_html = f"<img src='{url_aimix}' height='45px' style='margin-top: 5px;'>"
             accent_color = "#1E90FF" # Biru AIMIX
         else: # Timehope (Jika dipilih di Modul 2)
             url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
@@ -371,7 +371,7 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
         # Nama & Jabatan
         "<div style='text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
-        f"<p style='color: {accent_color}; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
+        f"<p style='color: {accent_color}; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES</p>"
         "</div>"
         
         # Footer Kontak & QR Code (Mobile Responsive)
