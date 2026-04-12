@@ -358,13 +358,13 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
         "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
         "<div style='width: 60px; height: 2px; background-color: #e0e0e0; margin: 10px 0;'></div>" 
-        f"<p style='color: {accent_color}; margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
+        f"<p style='color: {accent_color}; margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES</p>"
         "</div>"
         
         # Footer Kontak
         "<div style='display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;'>"
         "<div style='flex: 1 1 180px; font-size: 12px; color: #34495e; line-height: 2.0;'>"
-        "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>AZARINDO.ID</span></div>"
+        "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>azarindo.id</span></div>"
         f"<div>📱 <b>WhatsApp:</b> {wa_num}</div>"
         "<div>💼 <b>Area:</b> Kalimantan & Timur</div>"
         "<div>🏢 <b>Kantor:</b> Samarinda, Kaltim</div>"
