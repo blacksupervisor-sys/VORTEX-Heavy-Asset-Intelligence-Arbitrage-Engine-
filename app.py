@@ -380,6 +380,37 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
     )
     
     st.markdown(html_card, unsafe_allow_html=True)
+
+# ==========================================
+    # ELITE ACTION BAR (WA SHARE & vCARD)
+    # ==========================================
+    st.markdown("<br>", unsafe_allow_html=True)
+    col_btn1, col_btn2 = st.columns(2)
+    
+    with col_btn1:
+        # Teks otomatis untuk WhatsApp
+        pesan_wa = "Selamat pagi/siang Bapak/Ibu. Perkenalkan saya Adjie Agung, Heavy Equipment Specialist dari Azarindo. Berikut saya lampirkan kartu nama digital saya. Jika proyek Anda membutuhkan efisiensi dan perhitungan ROI untuk alat berat (Excavator, Concrete Pump, HSPD), saya siap membantu. Terima kasih."
+        link_wa = f"https://api.whatsapp.com/send?text={pesan_wa.replace(' ', '%20')}"
+        st.markdown(f'<a href="{link_wa}" target="_blank" style="display: block; text-align: center; background-color: #25D366; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;">💬 Kirim Pengantar WA</a>', unsafe_allow_html=True)
+
+    with col_btn2:
+        # Membuat file vCard (Kontak HP Otomatis)
+        vcard_data = f"""BEGIN:VCARD
+VERSION:3.0
+N:Agung;Adjie;;;
+FN:Adjie Agung
+TITLE:Heavy Equipment Sales Specialist
+ORG:Azarindo (Tatsuo, AIMIX, Timehope)
+TEL;TYPE=CELL:{wa_num}
+URL:AZARINDO.ID
+END:VCARD"""
+        st.download_button(
+            label="📇 Download File Kontak (vCard)",
+            data=vcard_data,
+            file_name="Adjie_Agung_Azarindo.vcf",
+            mime="text/vcard",
+            use_container_width=True
+        )
     
 # ==========================================
 # FOOTER
