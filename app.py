@@ -263,9 +263,9 @@ with st.expander("📇 Modul 11: Elite Digital Card & Identitas", expanded=True)
     st.markdown("Tunjukkan layar ini ke klien, atau *screenshot* untuk dikirim via WA.")
     
     # --- FITUR DRAG & DROP MULTIPLE BACKGROUND ---
-    st.markdown("**🖼️ Kustomisasi Latar Belakang (Bisa Upload 1 hingga 3 Gambar sekaligus)**")
+    st.markdown("**🖼️ Kustomisasi Background)**")
     # PERUBAHAN: accept_multiple_files=True ditambahkan di sini
-    bg_uploads = st.file_uploader("Drag & Drop gambar alat berat (Tatsuo, Aimix, dll):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
+    bg_uploads = st.file_uploader("Tatsuo + Aimix):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
     # Link Logo Dealer
     url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
@@ -312,7 +312,7 @@ with st.expander("📇 Modul 11: Elite Digital Card & Identitas", expanded=True)
         "<div style='display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;'>"
         f"<img src='{url_tatsuo}' height='20px' alt='Tatsuo Logo'>"
         "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
-        f"<img src='{url_aimix}' height='20px' alt='Aimix Logo'>"
+        f"<img src='{url_aimix}' height='35px' alt='Aimix Logo'>"
         "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
         f"<img src='{url_timehope}' height='28px' alt='Timehope Logo'>"
         "</div>"
@@ -323,13 +323,13 @@ with st.expander("📇 Modul 11: Elite Digital Card & Identitas", expanded=True)
         # Nama & Jabatan
         "<div style='text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
-        "<p style='color: #95a5a6; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
+        "<p style='color: #95a5a6; margin: 5px 0 0 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES </p>"
         "</div>"
         
         # Footer
         "<div style='display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;'>"
         "<div style='flex: 1 1 180px; font-size: 12px; color: #34495e; line-height: 2.0;'>"
-        "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>AZARINDO.ID</span></div>"
+        "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>azarindo.id</span></div>"
         f"<div>📱 <b>WhatsApp:</b> {wa_num}</div>"
         "<div>💼 <b>Area:</b> Kalimantan & Timur</div>"
         "<div>🏢 <b>Kantor:</b> Samarinda, Kaltim</div>"
