@@ -43,7 +43,7 @@ with st.sidebar:
     st.info("Library: AIMIX, Tatsuo, New Timehope")
     st.divider()
     wa_num = st.text_input("WhatsApp Sales", "+6281230857759")
-    aff_link = st.text_input("Shopee Affiliate", "https://shope.ee/...")
+    aff_link = st.text_input("Shopee Affiliate", "https://collshp.com/vortex_catalog?share_channel_code=1")
     st.divider()
     st.caption("Engine: VORTEX 4.0 | By Adjie Agung")
 
