@@ -255,7 +255,7 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
             st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
 
 # ==========================================
-# MODUL 11: ELITE DIGITAL CARD (PIXEL-PERFECT EDITION)
+# MODUL 11: ELITE DIGITAL CARD (PERFECT BALANCE EDITION)
 # ==========================================
 import base64 
 
@@ -268,11 +268,16 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
     card_choice = st.radio(
         "Pilih Fokus Desain Kartu Anda:",
         [
-            "Dual-Focus (Tatsuo & Aimix Only)",
-            "Single-Focus Dynamic (Sesuai Produk di Modul 2)"
+            "Dual-Focus (Tatsuo & Aimix)",
+            "Single-Focus (Satu Produk Khusus)"
         ],
         horizontal=True
     )
+
+    # PERBAIKAN 1: Pilihan Merek Khusus Modul 11 (Anti-Stuck)
+    single_brand = None
+    if card_choice == "Single-Focus (Satu Produk Khusus)":
+        single_brand = st.selectbox("🎯 Pilih Merek yang ingin ditonjolkan di kartu:", ["Tatsuo", "AIMIX", "New Timehope"])
 
     st.divider()
 
@@ -282,43 +287,40 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
     bg_uploads = st.file_uploader("Upload gambar (PNG/JPG):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
     # --- BAGIAN 2: DATA & LOGIKA DINAMIS ---
-    
-    # Link Logo Dealer (Timehope diaktifkan kembali)
     url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
     url_tatsuo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TATSUO.png" 
     url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
     url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
 
-    # Membuat QR Code dinamis dari link Affiliate
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={aff_link}"
 
-    # Logika Penentuan Logo & Warna
+    # Logika Penentuan Logo & Warna 
     header_logo_html = ""
     accent_color = ""
 
-    if card_choice == "Dual-Focus (Tatsuo & Aimix Only)":
+    if card_choice == "Dual-Focus (Tatsuo & Aimix)":
         accent_color = "#E74C3C" 
+        # PERBAIKAN 2: Proporsi Ukuran (Tatsuo dibuat 18px, Aimix dibesarkan jadi 28px agar sejajar)
         header_logo_html = (
-            "<div style='display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;'>"
-            f"<img src='{url_tatsuo}' height='20px' alt='Tatsuo Logo'>"
-            "<div style='border-left: 1px solid #ccc; height: 16px;'></div>"
-            f"<img src='{url_aimix}' height='20px' alt='Aimix Logo'>"
+            "<div style='display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: 5px;'>"
+            f"<img src='{url_tatsuo}' height='18px' alt='Tatsuo Logo'>"
+            "<div style='border-left: 2px solid #ddd; height: 22px;'></div>"
+            f"<img src='{url_aimix}' height='28px' alt='Aimix Logo'>"
             "</div>"
         )
     else:
-        # Perbaikan Logika Single-Focus agar New Timehope terbaca sempurna
-        if brand == "Tatsuo":
-            header_logo_html = f"<img src='{url_tatsuo}' height='25px' style='margin-top: 5px;'>"
-            accent_color = "#FFD700" # Kuning Emas Tatsuo
-        elif brand == "AIMIX":
-            header_logo_html = f"<img src='{url_aimix}' height='40px' style='margin-top: 5px;'>"
-            accent_color = "#1E90FF" # Biru AIMIX
-        elif brand == "New Timehope": 
-            header_logo_html = f"<img src='{url_timehope}' height='35px' style='margin-top: 5px;'>"
-            accent_color = "#C0392B" # Merah Timehope
-        else:
-            header_logo_html = ""
-            accent_color = "#333333"
+        # Menggunakan pilihan langsung dari Modul 11 (Bukan Modul 2)
+        if single_brand == "Tatsuo":
+            header_logo_html = f"<img src='{url_tatsuo}' height='28px' style='margin-top: 5px;'>"
+            accent_color = "#FFD700" 
+        elif single_brand == "AIMIX":
+            # AIMIX single focus dibesarkan signifikan
+            header_logo_html = f"<img src='{url_aimix}' height='42px' style='margin-top: 5px;'>"
+            accent_color = "#1E90FF" 
+        elif single_brand == "New Timehope": 
+            # Timehope single focus
+            header_logo_html = f"<img src='{url_timehope}' height='45px' style='margin-top: 5px;'>"
+            accent_color = "#C0392B" 
 
     # Logika Latar Belakang Multiple
     bg_html = ""
@@ -352,10 +354,10 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
         
         f"<hr style='border: 0; border-top: 2px solid {accent_color}; opacity: 0.2; margin: 20px 0;'>"
         
-        # Nama & Jabatan (Diperbaiki: Absolute Center + Garis Samar)
+        # Nama & Jabatan (Tengah + Garis)
         "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
-        "<div style='width: 60px; height: 2px; background-color: #e0e0e0; margin: 10px 0;'></div>" # Garis tengah samar
+        "<div style='width: 60px; height: 2px; background-color: #e0e0e0; margin: 10px 0;'></div>" 
         f"<p style='color: {accent_color}; margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES SPECIALIST</p>"
         "</div>"
         
