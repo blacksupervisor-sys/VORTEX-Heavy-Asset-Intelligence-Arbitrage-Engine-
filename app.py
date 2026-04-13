@@ -186,13 +186,14 @@ def create_visual_pdf(text, logo, brand, product_bytes):
             pdf.cell(0, 8, clean_line.upper(), border=0, ln=True)
             pdf.ln(1)
             
-        # Render Poin-poin
+       # Render Poin-poin
         elif line.startswith('- ') or line.startswith('* '):
             clean_line = line[2:].strip()
             pdf.set_font("helvetica", "", 10)
             pdf.set_text_color(40, 40, 40)
             pdf.set_x(15)
-            pdf.multi_cell(0, 6, f"•  {clean_line}")
+            # Menggunakan tanda hubung (-) yang 100% aman untuk semua mesin PDF
+            pdf.multi_cell(0, 6, f"-  {clean_line}") 
             pdf.set_x(10)
             
         # Render Paragraf Biasa
