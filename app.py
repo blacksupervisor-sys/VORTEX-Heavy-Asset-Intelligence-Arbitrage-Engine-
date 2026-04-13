@@ -90,14 +90,22 @@ def create_visual_pdf(text, logo, brand, product_bytes):
     pdf = VISUAL_PDF(logo_image=logo, brand_name=brand)
     pdf.add_page()
     
-    # --- RENDER GAMBAR PRODUK ---
+    # --- RENDER GAMBAR PRODUK SEBAGAI BACKGROUND BERBAYANG ---
     if product_bytes:
-        prod_img = Image.open(io.BytesIO(product_bytes))
+        # Gunakan Image dari PIL untuk memastikan format PNG dengan alpha channel (transparansi)
+        prod_img = Image.open(io.BytesIO(product_bytes)).convert("RGBA") 
         prod_buf = io.BytesIO()
         prod_img.save(prod_buf, format='PNG')
         prod_buf.seek(0)
-        pdf.image(prod_buf, x=50, y=pdf.get_y()+2, w=110)
-        pdf.ln(75) 
+        
+        # Menggunakan fitur transparansi fpdf2
+        # Gambar diletakkan di tengah halaman agar tidak terpotong
+        with pdf.local_context(fill_opacity=0.2): # Turunkan opacity jadi 20% agar teks lebih mudah dibaca
+            # x=25 (tengah), y=85 (posisi di belakang teks), w=160 (lebar proporsional)
+            pdf.image(prod_buf, x=25, y=85, w=160)
+
+    # Reset posisi Y agar teks mulai tepat di bawah garis header (Header selesai di y=40)
+    pdf.set_y(45)
 
     # --- PISAHKAN DATA BOX & KONTEN ---
     lines = text.encode('latin-1', 'ignore').decode('latin-1').replace('**', '').split('\n')
@@ -113,7 +121,7 @@ def create_visual_pdf(text, logo, brand, product_bytes):
 
     # --- RENDER DATA BOX (KOTAK INFORMASI) ---
     if box_data:
-        pdf.set_fill_color(242, 247, 252) # Biru sangat muda
+        pdf.set_fill_color(242, 247, 252) # Biru muda transparan
         pdf.set_draw_color(31, 73, 125)
         pdf.set_line_width(0.3)
         
@@ -134,7 +142,7 @@ def create_visual_pdf(text, logo, brand, product_bytes):
         pdf.cell(0, 2, "", border="LBR", ln=True, fill=True)
         pdf.ln(5)
 
-    # --- RENDER KONTEN TEKS & TABEL CERDAS ---
+    # --- RENDER KONTEN TEKS & TABEL ---
     in_table = False
     for line in content_lines:
         if not line:
@@ -145,28 +153,21 @@ def create_visual_pdf(text, logo, brand, product_bytes):
                 pdf.ln(2)
             continue
             
-        # Jika AI membuat Tabel (| Kolom 1 | Kolom 2 |)
         if line.startswith('|'):
-            if '|---' in line or '|:' in line: 
-                continue # Abaikan baris pemisah tabel markdown
-                
+            if '|---' in line or '|:' in line: continue
             cells = [c.strip() for c in line.split('|')[1:-1]]
             if not cells: continue
-            
-            col_w = 190 / len(cells) # Lebar kolom proporsional otomatis
+            col_w = 190 / len(cells)
             
             if not in_table:
-                # Render Header Tabel (Biru)
                 pdf.set_font("helvetica", "B", 9)
-                pdf.set_fill_color(41, 128, 185) # Biru terang korporat
+                pdf.set_fill_color(41, 128, 185)
                 pdf.set_text_color(255, 255, 255)
-                pdf.set_draw_color(200, 200, 200)
                 for cell in cells:
                     pdf.cell(col_w, 8, cell, border=1, fill=True)
                 pdf.ln()
                 in_table = True
             else:
-                # Render Isi Tabel (Putih)
                 pdf.set_font("helvetica", "", 9)
                 pdf.set_fill_color(255, 255, 255)
                 pdf.set_text_color(0, 0, 0)
@@ -177,7 +178,6 @@ def create_visual_pdf(text, logo, brand, product_bytes):
         else:
             in_table = False
 
-        # Render Judul Bagian (Heading)
         if line.startswith('## '):
             clean_line = line.replace('##', '').strip()
             pdf.ln(4)
@@ -185,18 +185,13 @@ def create_visual_pdf(text, logo, brand, product_bytes):
             pdf.set_text_color(0, 0, 0)
             pdf.cell(0, 8, clean_line.upper(), border=0, ln=True)
             pdf.ln(1)
-            
-       # Render Poin-poin
         elif line.startswith('- ') or line.startswith('* '):
             clean_line = line[2:].strip()
             pdf.set_font("helvetica", "", 10)
             pdf.set_text_color(40, 40, 40)
             pdf.set_x(15)
-            # Menggunakan tanda hubung (-) yang 100% aman untuk semua mesin PDF
-            pdf.multi_cell(0, 6, f"-  {clean_line}") 
+            pdf.multi_cell(0, 6, f"-  {clean_line}")
             pdf.set_x(10)
-            
-        # Render Paragraf Biasa
         elif not line.startswith('#'):
             pdf.set_font("helvetica", "", 10)
             pdf.set_text_color(40, 40, 40)
