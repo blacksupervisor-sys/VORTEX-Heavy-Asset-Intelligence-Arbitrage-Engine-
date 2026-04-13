@@ -109,56 +109,6 @@ with st.expander("🎯 Modul 2: Ekstraksi Spek & Analisis", expanded=False):
 
     if st.session_state.intelligence_data:
         st.info(st.session_state.intelligence_data)
-
-# ==========================================
-# MODUL INTELIJEN: LPSE/LKPP CONTRACTOR RADAR
-# ==========================================
-import pandas as pd
-
-with st.expander("📡 Modul Intelijen: LPSE & LKPP Contractor Radar", expanded=True):
-    st.markdown("### 🎯 Pelacak Pemenang Tender Infrastruktur")
-    st.markdown("Sistem ini memindai perusahaan kontraktor yang baru memenangkan proyek dan memprediksi kebutuhan alat berat mereka.")
-    
-    # 1. FILTER PENCARIAN
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        wilayah_target = st.selectbox("📍 Wilayah Proyek:", ["Kalimantan Timur", "Kalimantan Utara", "Kalimantan Selatan", "Maluku", "Papua"])
-    with col2:
-        kategori_proyek = st.selectbox("🏗️ Jenis Pekerjaan:", ["Pembangunan Jalan/Jembatan", "Irigasi & Waduk", "Infrastruktur Tambang", "Pembangunan Gedung"])
-    with col3:
-        nilai_minimal = st.selectbox("💰 Minimal Nilai HPS:", ["> Rp 5 Miliar", "> Rp 15 Miliar", "> Rp 50 Miliar"])
-
-    st.button("🔄 Scan Database LPSE Sekarang", type="primary", use_container_width=True)
-    st.divider()
-
-    # 2. SIMULASI DATABASE INTELIJEN (MOCKUP DATA TINGKAT TINGGI)
-    # Di masa depan, ini bisa dihubungkan langsung ke API LPSE atau file Excel hasil scraping Anda
-    data_tender = {
-        "Nama Perusahaan (Pemenang)": ["PT. Bumi Kaltim Konstruksi", "CV. Pilar Nusantara", "PT. Samudera Timur Engineering"],
-        "Nama Proyek": ["Peningkatan Jalan Lintas Samarinda-Bontang", "Pembangunan Fasilitas Air Bersih Tambang", "Konstruksi Pelabuhan Pengumpan"],
-        "Nilai Kontrak": ["Rp 24.500.000.000", "Rp 8.200.000.000", "Rp 55.400.000.000"],
-        "Prediksi Kebutuhan Unit": ["Excavator (Tatsuo), Buldozer", "Concrete Pump (AIMIX), Mixer", "Excavator Long Arm, Piling (Timehope)"]
-    }
-    df_tender = pd.DataFrame(data_tender)
-
-    # 3. MENAMPILKAN HASIL RADAR
-    st.markdown(f"**🟢 Ditemukan 3 Target Kontraktor Potensial di {wilayah_target}**")
-    st.dataframe(df_tender, use_container_width=True, hide_index=True)
-
-    # 4. ACTION BAR (TINDAKAN PENJUALAN)
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("**⚡ Aksi Eksekusi Target:**")
-    col_act1, col_act2 = st.columns(2)
-    
-    with col_act1:
-        target_pilihan = st.selectbox("Pilih Target untuk Dihubungi:", df_tender["Nama Perusahaan (Pemenang)"])
-    
-    with col_act2:
-        st.markdown("<br>", unsafe_allow_html=True) # Spacer agar sejajar dengan selectbox
-        # Tombol ini akan otomatis menyusun draf WA berdasarkan perusahaan yang dipilih
-        pesan_pendekatan = f"Selamat pagi Pimpinan {target_pilihan}. Selamat atas dimenangkannya tender proyek terbaru. Perkenalkan saya Adjie Agung dari Azarindo. Kami siap mendukung mobilisasi alat berat..."
-        link_wa_pendekatan = f"https://api.whatsapp.com/send?text={pesan_pendekatan.replace(' ', '%20')}"
-        st.markdown(f'<a href="{link_wa_pendekatan}" target="_blank" style="display: block; text-align: center; background-color: #2c3e50; color: white; padding: 8px; border-radius: 6px; text-decoration: none; font-weight: bold;">📝 Buat Draf WA Pendekatan</a>', unsafe_allow_html=True)
         
 # ==========================================
 # MODUL 3: PABRIK KONTEN & PUBLISHING
@@ -226,6 +176,59 @@ with st.expander("💰 Modul 5: Financial Sniper (ROI)", expanded=False):
         doc.save(bio)
         st.download_button("📄 Download Proposal", data=bio.getvalue(), file_name=f"Proposal_{brand}.docx", use_container_width=True)
 
+# ==========================================
+# MODUL 8.1: EFFICIENCY COMPARISON (UNIT VS BATCHING PLANT)
+# ==========================================
+with st.expander("🏗️ Modul 8.1: Unit vs Batching Plant Efficiency", expanded=True):
+    st.markdown("### 🔄 Perbandingan Biaya Beton")
+    st.info("Hitung penghematan dengan memproduksi beton sendiri di lokasi proyek.")
+
+    col_bp1, col_bp2 = st.columns(2)
+    
+    with col_bp1:
+        st.markdown("**🏬 Biaya Batching Plant (Luar)**")
+        harga_beton_m3 = st.number_input("Harga Beton per m3 (Rp):", value=1200000)
+        jarak_proyek = st.number_input("Jarak dari Plant ke Proyek (Km):", value=20)
+        biaya_mobilisasi_m3 = st.number_input("Biaya Kirim per m3/Km (Rp):", value=5000)
+
+    with col_input2:
+        st.markdown("**🚜 Produksi Mandiri (Aimix/ABJZ)**")
+        biaya_material_m3 = st.number_input("Biaya Raw Material (Semen, Pasir, Batu) per m3 (Rp):", value=850000)
+        biaya_op_m3 = st.number_input("Biaya Solar & Operator per m3 (Rp):", value=50000)
+
+    # --- LOGIKA HITUNG ---
+    total_batching_plant = harga_beton_m3 + (jarak_proyek * biaya_mobilisasi_m3)
+    total_produksi_mandiri = biaya_material_m3 + biaya_op_m3
+    penghematan_per_m3 = total_batching_plant - total_produksi_mandiri
+    
+    # Estimasi Kebutuhan Proyek
+    volume_proyek = st.number_input("Total Volume Beton Proyek (m3):", value=1000)
+    total_saving = penghematan_per_m3 * volume_proyek
+
+    # --- DISPLAY HASIL ---
+    st.divider()
+    c1, c2 = st.columns(2)
+    c1.metric("Biaya Batching Plant", f"Rp {total_batching_plant:,.0f} /m3")
+    c2.metric("Biaya Produksi Mandiri", f"Rp {total_produksi_mandiri:,.0f} /m3", delta=f"-Rp {penghematan_per_m3:,.0f}", delta_color="normal")
+
+    st.success(f"💰 **Total Potensi Penghematan:** Rp {total_saving:,.0f} untuk volume {volume_proyek} m3.")
+    
+    if total_saving > harga_alat:
+        st.warning(f"💡 **Insight:** Hanya dari satu proyek ini, penghematan Anda sudah bisa melunasi 1 unit alat baru (Self-Loading Mixer)!")
+    
+    # TOMBOL COPY ANALISIS EFISIENSI
+    if st.button("📋 Salin Narasi Efisiensi"):
+        narasi = f"""
+        *PERBANDINGAN EFISIENSI BETON*
+        Jarak Proyek: {jarak_proyek} Km
+        Biaya Luar (Plant): Rp {total_batching_plant:,.0f}/m3
+        Biaya Mandiri (Unit): Rp {total_produksi_mandiri:,.0f}/m3
+        ---------------------------
+        PROFIT DARI EFISIENSI: Rp {penghematan_per_m3:,.0f}/m3
+        TOTAL SAVING PROYEK: Rp {total_saving:,.0f}
+        """
+        st.code(narasi, language="markdown")
+        
 # ==========================================
 # MODUL 6 & 7: KOMPETITOR & UPSELL
 # ==========================================
