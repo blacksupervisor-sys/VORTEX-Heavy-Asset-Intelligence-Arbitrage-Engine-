@@ -147,146 +147,57 @@ with st.expander("💬 Modul 4: AI Comment Sniper", expanded=False):
             st.success(model_sniper.generate_content(f"Balas komentar: '{komen}' untuk {brand} {unit_type}. Deteksi Hot Lead/Skeptis/Troll, patahkan argumennya.").text)
 
 # ==========================================
-# MODUL 5: B2B FINANCIAL SNIPER
+# MODUL 8.3: ROI PROPOSAL GENERATOR
 # ==========================================
-with st.expander("💰 Modul 5: Financial Sniper (ROI)", expanded=False):
-    c_f1, c_f2 = st.columns(2)
-    with c_f1:
-        inv = st.number_input("Harga Unit (Rp)", value=1500000000, step=10000000)
-        prod = st.number_input("Target/Hari", value=100)
-        harga = st.number_input("Profit/m3 (Rp)", value=150000)
-    with c_f2:
-        ops = st.number_input("Biaya Ops/Bln (Rp)", value=30000000)
-        lama = st.number_input("Biaya Lama (Rp)", value=80000000)
-        hari = st.number_input("Hari Kerja", value=25)
+st.divider()
+st.markdown("### 📄 VORTEX Strategic Proposal")
+st.info("Gunakan modul ini untuk menghasilkan draf proposal bisnis berdasarkan simulasi di atas.")
 
-    if st.button("🧮 Generate ROI Proposal", use_container_width=True):
-        profit_bln = (prod * harga * hari) - ops
-        bep = inv / profit_bln if profit_bln > 0 else 0
-        st.markdown(f"**BEP:** {bep:.1f} Bulan | **Hemat:** Rp {lama-ops:,.0f}/bln")
+if st.button("🚀 GENERATE ROI PROPOSAL SEKARANG", type="primary", use_container_width=True):
+    # Mengambil data dari variabel yang sudah dihitung di modul sebelumnya
+    # Jika variabel belum ada (user belum isi), gunakan nilai default agar tidak error
+    try:
+        proposal_text = f"""
+        *PROPOSAL ANALISIS INVESTASI & EFISIENSI BETON*
+        *Target Unit:* Aimix Self-Loading Concrete Mixer
         
-        model_fin = genai.GenerativeModel('gemini-flash-latest')
-        res_fin = model_fin.generate_content(f"Buat Executive Summary meyakinkan. Alat {brand}. Investasi Rp {inv:,.0f}, BEP {bep:.1f} bulan.")
-        st.info(res_fin.text)
-
-        doc = docx.Document()
-        doc.add_heading('Executive Summary', 0)
-        for p in res_fin.text.split('\n'): doc.add_paragraph(p.strip())
-        bio = io.BytesIO()
-        doc.save(bio)
-        st.download_button("📄 Download Proposal", data=bio.getvalue(), file_name=f"Proposal_{brand}.docx", use_container_width=True)
-
-# ==========================================
-# MODUL 8: EXECUTIVE PRODUCTION & ROI DASHBOARD
-# ==========================================
-with st.expander("💎 MODUL 8: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=True):
-    st.markdown("### 📊 Analisis Finansial & Teknis Terpadu")
-    
-    # TAB UTAMA
-    tab1, tab2, tab3 = st.tabs(["🧮 Kalkulator ROI", "🧪 Formula & Material", "⚡ Efisiensi Produksi"])
-
-    # ---------------------------------------------------------
-    # TAB 1: KALKULATOR ROI (KREDIT & CASHFLOW)
-    # ---------------------------------------------------------
-    with tab1:
-        c_roi1, c_roi2 = st.columns(2)
-        with c_roi1:
-            st.markdown("**💰 Investasi Unit**")
-            h_alat = st.number_input("Harga Alat (Rp):", value=850000000)
-            dp = st.slider("DP (%)", 0, 50, 20)
-            bunga = st.number_input("Bunga Efektif (%/Thn):", value=10.0)
-            tenor = st.number_input("Tenor (Bulan):", value=36)
+        *1. ANALISIS MUTU & MATERIAL (SNI 7394:2008)*
+        - Mutu Beton: {mutu}
+        - Estimasi Biaya Produksi: Rp {total_cost_m3:,.0f} /m3
+        - Perbandingan Harga Pasar: Rp {harga_readymix_pasar:,.0f} /m3
+        - *Potensi Margin Hemat:* Rp {margin_saving:,.0f} /m3
         
-        plafon = h_alat * (1 - (dp/100))
-        i = (bunga / 100) / 12
-        cicilan = (plafon * i) / (1 - (1 + i)**-tenor)
+        *2. RINGKASAN KEBUTUHAN PROYEK*
+        - Total Volume: {total_vol_proyek} m3
+        - Kebutuhan Semen: {tot_semen:,.0f} Sak
+        - Kebutuhan Pasir: {tot_pasir:,.1f} m3
+        - Kebutuhan Koral: {tot_koral:,.1f} m3
         
-        with c_roi2:
-            st.markdown("**🏗️ Target Operasional**")
-            vol_bulan = st.number_input("Estimasi Produksi / Bulan (m3):", value=300)
-            margin_m3 = st.number_input("Profit Bersih / m3 (Rp):", value=350000)
-            
-        profit_kotor = vol_bulan * margin_m3
-        sisa_cash = profit_kotor - cicilan
-        pb_period = h_alat / profit_kotor if profit_kotor > 0 else 0
+        *3. ANALISIS KECEPATAN & SDM*
+        - Output Kerja: ± {output_aimix} m3 / Hari (8 Jam)
+        - Efisiensi: {output_aimix/15:.1f}x lebih cepat dibanding metode manual.
+        - Reduksi Tenaga Kerja: Memangkas hingga 15 orang tukang menjadi 2 kru.
         
-        st.divider()
-        r1, r2, r3 = st.columns(3)
-        r1.metric("Cicilan / Bulan", f"Rp {cicilan:,.0f}")
-        r2.metric("Nett Cashflow", f"Rp {sisa_cash:,.0f}")
-        r3.metric("Payback Period", f"{pb_period:.1f} Bulan")
-
-    # ---------------------------------------------------------
-    # TAB 2: FORMULA SNI & TOTAL MATERIAL PROYEK
-    # ---------------------------------------------------------
-    with tab2:
-        # Database SNI per m3 (kg)
-        db_sni = {
-            "K-100": {"s": 230, "p": 893, "k": 1027},
-            "K-175": {"s": 326, "p": 760, "k": 1029},
-            "K-225": {"s": 371, "p": 698, "k": 1047},
-            "K-250": {"s": 384, "p": 692, "k": 1039},
-            "K-300": {"s": 413, "p": 681, "k": 1021},
-            "K-350": {"s": 448, "p": 667, "k": 1000},
-            "K-400": {"s": 470, "p": 625, "k": 1025}
-        }
+        *4. KESIMPULAN ROI (RETURN ON INVESTMENT)*
+        - Investasi Alat: Rp {h_alat:,.0f}
+        - Payback Period: {pb_period:.1f} Bulan
+        - *Total Saving Proyek:* Rp {margin_saving * total_vol_proyek:,.0f}
         
-        c_f1, c_f2 = st.columns([1, 2])
-        with c_f1:
-            mutu = st.selectbox("Mutu Beton (SNI):", list(db_sni.keys()), index=4)
-            total_vol_proyek = st.number_input("Total Volume Proyek (m3):", value=1000)
+        *Kesimpulan Akhir:* Hanya dari penghematan material di proyek ini (Volume {total_vol_proyek} m3), unit ini diproyeksikan mampu membayar seluruh nilai investasinya sendiri.
         
-        # Hitung Kebutuhan Total
-        f = db_sni[mutu]
-        tot_semen = (f['s'] / 50) * total_vol_proyek
-        tot_pasir = (f['p'] / 1400) * total_vol_proyek
-        tot_koral = (f['k'] / 1350) * total_vol_proyek
-        
-        with c_f2:
-            st.markdown(f"**📦 Kebutuhan Material Proyek ({total_vol_proyek} m3):**")
-            st.write(f"- Semen: **{tot_semen:,.0f} Sak** (50kg)")
-            st.write(f"- Pasir: **{tot_pasir:,.1f} m3**")
-            st.write(f"- Koral: **{tot_koral:,.1f} m3**")
-
-    # ---------------------------------------------------------
-    # TAB 3: PERBANDINGAN KECEPATAN & TENAGA KERJA
-    # ---------------------------------------------------------
-    with tab3:
-        st.markdown("**🚀 Self-Loading Mixer vs Manual (8 Jam Kerja)**")
-        col_v1, col_v2 = st.columns(2)
-        
-        with col_v1:
-            st.info("👴 **Metode Manual**")
-            st.write("Output: ± 15 m3 / Hari")
-            st.write("Tenaga: 15-20 Orang")
-            st.write("Biaya Upah: Tinggi")
-            
-        with col_v2:
-            st.success("🤖 **VORTEX / AIMIX Engine**")
-            output_aimix = 60 # Rata-rata 3.5m3 per 12-15 menit
-            st.write(f"Output: ± {output_aimix} m3 / Hari")
-            st.write("Tenaga: 1 Operator + 1 Helper")
-            st.write("Biaya Upah: Sangat Rendah")
-            
-        st.divider()
-        st.subheader(f"Efisiensi: {output_aimix/15:.1f}x Lebih Cepat & Hemat 90% SDM!")
-
-    # TOMBOL COPY FINAL
-    if st.button("📝 Generate Full Analysis Report"):
-        report = f"""
-        *EXECUTIVE SUMMARY - {mutu}*
-        Volume Proyek: {total_vol_proyek} m3
-        Payback Period: {pb_period:.1f} Bulan
         ---------------------------
-        KEBUTUHAN MATERIAL TOTAL:
-        - Semen: {tot_semen:,.0f} Sak
-        - Pasir: {tot_pasir:,.1f} m3
-        - Koral: {tot_koral:,.1f} m3
-        ---------------------------
-        EFISIENSI PRODUKSI:
-        Metode Aimix {output_aimix/15:.1f}x lebih cepat dibanding manual.
+        *Diajukan oleh: Adjie Agung (VORTEX Executive Sales)*
         """
-        st.code(report, language="markdown")
+        
+        st.subheader("Draf Proposal Anda:")
+        st.markdown(proposal_text)
+        
+        # Link WhatsApp untuk mengirim proposal
+        wa_proposal = f"https://api.whatsapp.com/send?text={proposal_text.replace('*', '').replace(' ', '%20')}"
+        st.markdown(f'<a href="{wa_proposal}" target="_blank" style="display: block; text-align: center; background-color: #25d366; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold;">📲 Kirim Proposal via WhatsApp</a>', unsafe_allow_html=True)
+        
+    except NameError:
+        st.error("⚠️ Silakan isi data di Tab 1 dan Tab 2 terlebih dahulu sebelum membuat proposal.")
         
 # ==========================================
 # MODUL 6 & 7: KOMPETITOR & UPSELL
