@@ -90,22 +90,27 @@ def create_visual_pdf(text, logo, brand, product_bytes):
     pdf = VISUAL_PDF(logo_image=logo, brand_name=brand)
     pdf.add_page()
     
-    # --- RENDER GAMBAR PRODUK SEBAGAI BACKGROUND BERBAYANG ---
+    # --- RENDER GAMBAR PRODUK 100% UTUH (AUTO-RESIZE Y) ---
     if product_bytes:
-        # Gunakan Image dari PIL untuk memastikan format PNG dengan alpha channel (transparansi)
         prod_img = Image.open(io.BytesIO(product_bytes)).convert("RGBA") 
         prod_buf = io.BytesIO()
         prod_img.save(prod_buf, format='PNG')
         prod_buf.seek(0)
         
-        # Menggunakan fitur transparansi fpdf2
-        # Gambar diletakkan di tengah halaman agar tidak terpotong
-        with pdf.local_context(fill_opacity=0.2): # Turunkan opacity jadi 20% agar teks lebih mudah dibaca
-            # x=25 (tengah), y=85 (posisi di belakang teks), w=160 (lebar proporsional)
-            pdf.image(prod_buf, x=25, y=85, w=160)
-
-    # Reset posisi Y agar teks mulai tepat di bawah garis header (Header selesai di y=40)
-    pdf.set_y(45)
+        # Kalkulasi dimensi dinamis agar roda/bawah gambar tidak tertabrak kotak
+        img_w_px, img_h_px = prod_img.size
+        target_width = 130 # Lebar gambar di PDF (mm)
+        calculated_height = (img_h_px / img_w_px) * target_width
+        
+        y_start = pdf.get_y() + 2
+        x_start = (210 - target_width) / 2 # Posisi presisi di tengah kertas
+        
+        # Cetak gambar dengan warna solid 100%
+        pdf.image(prod_buf, x=x_start, y=y_start, w=target_width)
+        
+        # Pindahkan kursor teks secara dinamis tepat di bawah gambar + jarak aman 8mm
+        # Ini menjamin gambar APAPUN tidak akan pernah terpotong lagi!
+        pdf.set_y(y_start + calculated_height + 8)
 
     # --- PISAHKAN DATA BOX & KONTEN ---
     lines = text.encode('latin-1', 'ignore').decode('latin-1').replace('**', '').split('\n')
@@ -119,30 +124,32 @@ def create_visual_pdf(text, logo, brand, product_bytes):
         else:
             content_lines.append(line_str)
 
-    # --- RENDER DATA BOX (KOTAK INFORMASI) ---
+    # --- RENDER DATA BOX DENGAN EFEK KACA (85% Opacity) ---
     if box_data:
-        pdf.set_fill_color(242, 247, 252) # Biru muda transparan
-        pdf.set_draw_color(31, 73, 125)
-        pdf.set_line_width(0.3)
-        
-        pdf.set_font("helvetica", "B", 10)
-        pdf.set_text_color(31, 73, 125)
-        pdf.cell(0, 8, " INFORMASI UNIT UTAMA", border="LTR", ln=True, fill=True)
-        
-        pdf.set_font("helvetica", "", 10)
-        pdf.set_text_color(0, 0, 0)
-        for bd in box_data:
-            parts = bd.split(":", 1)
-            if len(parts) == 2:
-                pdf.cell(35, 7, f" {parts[0].strip()}", border="L", fill=True)
-                pdf.cell(0, 7, f": {parts[1].strip()}", border="R", ln=True, fill=True)
-            else:
-                pdf.cell(0, 7, f" {bd}", border="LR", ln=True, fill=True)
-                
-        pdf.cell(0, 2, "", border="LBR", ln=True, fill=True)
-        pdf.ln(5)
+        # local_context membuat kotak sedikit tembus pandang sesuai request Anda
+        with pdf.local_context(fill_opacity=0.85): 
+            pdf.set_fill_color(242, 247, 252) # Biru muda korporat
+            pdf.set_draw_color(31, 73, 125)
+            pdf.set_line_width(0.3)
+            
+            pdf.set_font("helvetica", "B", 10)
+            pdf.set_text_color(31, 73, 125)
+            pdf.cell(0, 8, " INFORMASI UNIT UTAMA", border="LTR", ln=True, fill=True)
+            
+            pdf.set_font("helvetica", "", 10)
+            pdf.set_text_color(0, 0, 0)
+            for bd in box_data:
+                parts = bd.split(":", 1)
+                if len(parts) == 2:
+                    pdf.cell(35, 7, f" {parts[0].strip()}", border="L", fill=True)
+                    pdf.cell(0, 7, f": {parts[1].strip()}", border="R", ln=True, fill=True)
+                else:
+                    pdf.cell(0, 7, f" {bd}", border="LR", ln=True, fill=True)
+                    
+            pdf.cell(0, 2, "", border="LBR", ln=True, fill=True)
+            pdf.ln(5)
 
-    # --- RENDER KONTEN TEKS & TABEL ---
+    # --- RENDER KONTEN TEKS & TABEL CERDAS ---
     in_table = False
     for line in content_lines:
         if not line:
