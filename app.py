@@ -10,6 +10,7 @@ import os
 import requests
 import base64
 from fpdf import FPDF
+import urllib.parse
 
 # ==========================================
 # KONFIGURASI HALAMAN & STATE MANAGEMENT
@@ -546,9 +547,18 @@ Adjie Agung - Heavy Asset Specialist
         col_dl1, col_dl2 = st.columns(2)
         with col_dl1:
             st.download_button("📄 Download Sales Kit (.txt)", data=teks_brosur, file_name=f"Penawaran_{nama_klien_brosur.replace(' ', '_')}.txt", mime="text/plain", use_container_width=True)
+        
         with col_dl2:
-            wa_text_bro = teks_brosur.replace(' ', '%20').replace(chr(10), '%0A')
-            st.markdown(f'<a href="https://api.whatsapp.com/send?text={wa_text_bro}" target="_blank" style="display: block; text-align: center; background-color: #25d366; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;">📲 Kirim via WA</a>', unsafe_allow_html=True)
+            # PERBAIKAN: Menggunakan urllib.parse.quote agar semua karakter (tabel, enter, kutip) AMAN untuk URL WhatsApp
+            wa_text_bro = urllib.parse.quote(teks_brosur)
+            
+            tombol_wa_html = f"""
+            <a href="https://api.whatsapp.com/send?text={wa_text_bro}" target="_blank" style="display: block; text-align: center; background-color: #25d366; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;">
+                📲 Kirim via WA
+            </a>
+            """
+            st.markdown(tombol_wa_html, unsafe_allow_html=True)
+            
 # ==========================================
 # MODUL 12: ELITE DIGITAL CARD 
 # ==========================================
