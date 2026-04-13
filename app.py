@@ -466,7 +466,12 @@ with st.expander("📸 MODUL 11: AI Photonis & Auto-Brochure", expanded=True):
                             try:
                                 model_p = genai.GenerativeModel('gemini-flash-latest')
                                 img_pil = Image.open(io.BytesIO(st.session_state['fotonis_clean_img']))
-                                prompt_ai = "Berikan spesifikasi teknis mendalam dan copywriting marketing metode AIDA untuk unit ini."
+                                prompt_ai = """Bertindaklah sebagai Heavy Equipment Technical Writer. Analisis gambar ini dan buat Executive Sales Report. 
+ATURAN SANGAT PENTING: 
+1. JANGAN gunakan kata-kata pembuka robot/percakapan seperti "Berdasarkan gambar yang Anda unggah...". Langsung tuliskan nama unit sebagai judul.
+2. DILARANG KERAS menggunakan format Tabel Markdown (garis vertikal |...|). Mesin PDF tidak bisa membacanya.
+3. Gunakan format daftar (bullet point) standar menggunakan tanda strip (-) untuk rincian teknis. Contoh: "- Kapasitas Maksimal: 40 m3/jam".
+4. Susun laporan dengan struktur: Nama Unit, Spesifikasi Teknis Detail, dan Copywriting Penjualan (Metode AIDA). Gunakan bahasa korporat yang elegan, rapi, dan mematikan."""
                                 res_p = model_p.generate_content([prompt_ai, img_pil])
                                 st.session_state['fotonis_draft_text'] = res_p.text
                             except Exception as e:
@@ -495,15 +500,29 @@ with st.expander("📸 MODUL 11: AI Photonis & Auto-Brochure", expanded=True):
                         st.rerun()
 
     with tab_brosur:
-        st.markdown("### 🖨️ Mesin Penawaran Cepat")
+        st.markdown("### 🖨️ Mesin Penawaran Cepat (AI-Synced)")
         
         c_bro1, c_bro2 = st.columns(2)
         with c_bro1:
             nama_klien_brosur = st.text_input("Nama Klien:", value="PT. Bangun Nusantara", key="bro_klien")
             lokasi_proyek = st.text_input("Lokasi Proyek:", value="Kalimantan Timur", key="bro_lokasi")
         with c_bro2:
-            unit_brosur = st.selectbox("Unit yang Ditawarkan:", ["Aimix Self-Loading AS-3.5", "Aimix Self-Loading AS-4.0", "Tatsuo Excavator TX-200"], key="bro_unit")
+            # PERBAIKAN 1: Diganti menjadi Text Input agar bebas diisi unit apa saja hasil analisa Fotonis
+            unit_brosur = st.text_input("Unit yang Ditawarkan:", value="AIMIX ABT40C Diesel Concrete Pump", placeholder="Ketik nama unit...", key="bro_unit")
             harga_penawaran = st.number_input("Harga Penawaran (Rp):", value=850000000, step=10000000, key="bro_harga")
+
+        # PERBAIKAN 2: Mengambil Copywriting AIDA & Spek langsung dari memori Fotonis Tab 1
+        ai_sales_pitch = ""
+        if 'fotonis_draft_text' in st.session_state and st.session_state['fotonis_draft_text'] != "":
+            # Membersihkan simbol markdown agar teks rapi saat dikirim ke WA klien
+            clean_pitch = st.session_state['fotonis_draft_text'].replace('**', '').replace('*', '').replace('#', '')
+            ai_sales_pitch = f"\nKEUNGGULAN & SPESIFIKASI UNIT (Berdasarkan Analisa Kebutuhan):\n{clean_pitch}\n"
+        else:
+            # Teks cadangan jika Fotonis belum dijalankan
+            ai_sales_pitch = """\nKEUNGGULAN INVESTASI:
+1. Efisiensi Waktu: Mempercepat produksi hingga 3x lipat.
+2. Hemat SDM: Memangkas biaya upah tukang.
+3. Kualitas Presisi: Mutu hasil kerja lebih terjaga.\n"""
 
         teks_brosur = f"""=========================================
 OFFICIAL SALES KIT & TECHNICAL PROPOSAL
@@ -514,12 +533,7 @@ Lokasi Proyek: {lokasi_proyek}
 Merespon kebutuhan infrastruktur di proyek Bapak/Ibu, kami merekomendasikan:
 ▶ UNIT: {unit_brosur}
 ▶ HARGA INVESTASI: Rp {harga_penawaran:,.0f}
-
-KEUNGGULAN INVESTASI:
-1. Efisiensi Waktu: Mempercepat produksi hingga 3x lipat.
-2. Hemat SDM: Memangkas biaya upah tukang.
-3. Kualitas Presisi: Mutu hasil kerja lebih terjaga.
-
+{ai_sales_pitch}
 [Lampiran: Garansi Mesin 1 Tahun & Free Training Operator]
 Hubungi kami untuk skema pembayaran terbaik.
 
@@ -527,7 +541,7 @@ Hormat kami,
 Adjie Agung - Heavy Asset Specialist
 ========================================="""
 
-        st.text_area("Preview Surat Penawaran:", value=teks_brosur, height=300)
+        st.text_area("Preview Surat Penawaran (Auto-Sync dengan Photonis AI):", value=teks_brosur, height=350)
         
         col_dl1, col_dl2 = st.columns(2)
         with col_dl1:
@@ -535,7 +549,6 @@ Adjie Agung - Heavy Asset Specialist
         with col_dl2:
             wa_text_bro = teks_brosur.replace(' ', '%20').replace(chr(10), '%0A')
             st.markdown(f'<a href="https://api.whatsapp.com/send?text={wa_text_bro}" target="_blank" style="display: block; text-align: center; background-color: #25d366; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;">📲 Kirim via WA</a>', unsafe_allow_html=True)
-
 # ==========================================
 # MODUL 12: ELITE DIGITAL CARD 
 # ==========================================
