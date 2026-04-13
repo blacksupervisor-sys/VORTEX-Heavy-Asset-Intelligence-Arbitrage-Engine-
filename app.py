@@ -177,60 +177,116 @@ with st.expander("💰 Modul 5: Financial Sniper (ROI)", expanded=False):
         st.download_button("📄 Download Proposal", data=bio.getvalue(), file_name=f"Proposal_{brand}.docx", use_container_width=True)
 
 # ==========================================
-# MODUL 8.1: EFFICIENCY COMPARISON (UNIT VS BATCHING PLANT) - FIXED
+# MODUL 8: EXECUTIVE PRODUCTION & ROI DASHBOARD
 # ==========================================
-with st.expander("🏗️ Modul 8.1: Unit vs Batching Plant Efficiency", expanded=True):
-    st.markdown("### 🔄 Perbandingan Biaya Beton")
-    st.info("Hitung penghematan dengan memproduksi beton sendiri di lokasi proyek.")
-
-    # Membuat kolom baru khusus untuk modul ini agar tidak bentrok
-    col_bp1, col_bp2 = st.columns(2)
+with st.expander("💎 MODUL 8: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=True):
+    st.markdown("### 📊 Analisis Finansial & Teknis Terpadu")
     
-    with col_bp1:
-        st.markdown("**🏬 Biaya Batching Plant (Luar)**")
-        harga_beton_m3 = st.number_input("Harga Beton per m3 (Rp):", value=1200000, key="hp_m3")
-        jarak_proyek = st.number_input("Jarak dari Plant ke Proyek (Km):", value=20, key="jr_pj")
-        biaya_mobilisasi_m3 = st.number_input("Biaya Kirim per m3/Km (Rp):", value=5000, key="bm_m3")
+    # TAB UTAMA
+    tab1, tab2, tab3 = st.tabs(["🧮 Kalkulator ROI", "🧪 Formula & Material", "⚡ Efisiensi Produksi"])
 
-    with col_bp2: # <-- INI SUDAH DIPERBAIKI (Sebelumnya col_input2)
-        st.markdown("**🚜 Produksi Mandiri (Aimix/ABJZ)**")
-        biaya_material_m3 = st.number_input("Biaya Raw Material per m3 (Rp):", value=850000, key="rm_m3")
-        biaya_op_m3 = st.number_input("Biaya Solar & Operator per m3 (Rp):", value=50000, key="bo_m3")
+    # ---------------------------------------------------------
+    # TAB 1: KALKULATOR ROI (KREDIT & CASHFLOW)
+    # ---------------------------------------------------------
+    with tab1:
+        c_roi1, c_roi2 = st.columns(2)
+        with c_roi1:
+            st.markdown("**💰 Investasi Unit**")
+            h_alat = st.number_input("Harga Alat (Rp):", value=850000000)
+            dp = st.slider("DP (%)", 0, 50, 20)
+            bunga = st.number_input("Bunga Efektif (%/Thn):", value=10.0)
+            tenor = st.number_input("Tenor (Bulan):", value=36)
+        
+        plafon = h_alat * (1 - (dp/100))
+        i = (bunga / 100) / 12
+        cicilan = (plafon * i) / (1 - (1 + i)**-tenor)
+        
+        with c_roi2:
+            st.markdown("**🏗️ Target Operasional**")
+            vol_bulan = st.number_input("Estimasi Produksi / Bulan (m3):", value=300)
+            margin_m3 = st.number_input("Profit Bersih / m3 (Rp):", value=350000)
+            
+        profit_kotor = vol_bulan * margin_m3
+        sisa_cash = profit_kotor - cicilan
+        pb_period = h_alat / profit_kotor if profit_kotor > 0 else 0
+        
+        st.divider()
+        r1, r2, r3 = st.columns(3)
+        r1.metric("Cicilan / Bulan", f"Rp {cicilan:,.0f}")
+        r2.metric("Nett Cashflow", f"Rp {sisa_cash:,.0f}")
+        r3.metric("Payback Period", f"{pb_period:.1f} Bulan")
 
-    # --- LOGIKA HITUNG ---
-    total_batching_plant = harga_beton_m3 + (jarak_proyek * biaya_mobilisasi_m3)
-    total_produksi_mandiri = biaya_material_m3 + biaya_op_m3
-    penghematan_per_m3 = total_batching_plant - total_produksi_mandiri
-    
-    # Input Volume Proyek
-    volume_proyek = st.number_input("Total Volume Beton Proyek (m3):", value=1000, key="vol_pj")
-    total_saving = penghematan_per_m3 * volume_proyek
+    # ---------------------------------------------------------
+    # TAB 2: FORMULA SNI & TOTAL MATERIAL PROYEK
+    # ---------------------------------------------------------
+    with tab2:
+        # Database SNI per m3 (kg)
+        db_sni = {
+            "K-100": {"s": 230, "p": 893, "k": 1027},
+            "K-175": {"s": 326, "p": 760, "k": 1029},
+            "K-225": {"s": 371, "p": 698, "k": 1047},
+            "K-250": {"s": 384, "p": 692, "k": 1039},
+            "K-300": {"s": 413, "p": 681, "k": 1021},
+            "K-350": {"s": 448, "p": 667, "k": 1000},
+            "K-400": {"s": 470, "p": 625, "k": 1025}
+        }
+        
+        c_f1, c_f2 = st.columns([1, 2])
+        with c_f1:
+            mutu = st.selectbox("Mutu Beton (SNI):", list(db_sni.keys()), index=4)
+            total_vol_proyek = st.number_input("Total Volume Proyek (m3):", value=1000)
+        
+        # Hitung Kebutuhan Total
+        f = db_sni[mutu]
+        tot_semen = (f['s'] / 50) * total_vol_proyek
+        tot_pasir = (f['p'] / 1400) * total_vol_proyek
+        tot_koral = (f['k'] / 1350) * total_vol_proyek
+        
+        with c_f2:
+            st.markdown(f"**📦 Kebutuhan Material Proyek ({total_vol_proyek} m3):**")
+            st.write(f"- Semen: **{tot_semen:,.0f} Sak** (50kg)")
+            st.write(f"- Pasir: **{tot_pasir:,.1f} m3**")
+            st.write(f"- Koral: **{tot_koral:,.1f} m3**")
 
-    # --- DISPLAY HASIL ---
-    st.divider()
-    c1, c2 = st.columns(2)
-    c1.metric("Biaya Batching Plant", f"Rp {total_batching_plant:,.0f} /m3")
-    c2.metric("Biaya Produksi Mandiri", f"Rp {total_produksi_mandiri:,.0f} /m3", 
-              delta=f"-Rp {penghematan_per_m3:,.0f}", delta_color="normal")
+    # ---------------------------------------------------------
+    # TAB 3: PERBANDINGAN KECEPATAN & TENAGA KERJA
+    # ---------------------------------------------------------
+    with tab3:
+        st.markdown("**🚀 Self-Loading Mixer vs Manual (8 Jam Kerja)**")
+        col_v1, col_v2 = st.columns(2)
+        
+        with col_v1:
+            st.info("👴 **Metode Manual**")
+            st.write("Output: ± 15 m3 / Hari")
+            st.write("Tenaga: 15-20 Orang")
+            st.write("Biaya Upah: Tinggi")
+            
+        with col_v2:
+            st.success("🤖 **VORTEX / AIMIX Engine**")
+            output_aimix = 60 # Rata-rata 3.5m3 per 12-15 menit
+            st.write(f"Output: ± {output_aimix} m3 / Hari")
+            st.write("Tenaga: 1 Operator + 1 Helper")
+            st.write("Biaya Upah: Sangat Rendah")
+            
+        st.divider()
+        st.subheader(f"Efisiensi: {output_aimix/15:.1f}x Lebih Cepat & Hemat 90% SDM!")
 
-    st.success(f"💰 **Total Potensi Penghematan:** Rp {total_saving:,.0f} untuk volume {volume_proyek} m3.")
-    
-    # Syarat perbandingan dengan harga_alat (pastikan variabel harga_alat ada di Modul 8)
-    # Jika error karena harga_alat tidak terbaca, kita gunakan angka default atau ambil dari input
-    if total_saving > 500000000: # Contoh threshold 500jt
-        st.warning(f"💡 **Insight:** Penghematan proyek ini sudah bisa menutup sebagian besar investasi alat baru!")
-    
-    if st.button("📋 Salin Narasi Efisiensi", key="btn_copy_eff"):
-        narasi = f"""
-        *PERBANDINGAN EFISIENSI BETON*
-        Jarak Proyek: {jarak_proyek} Km
-        Biaya Luar (Plant): Rp {total_batching_plant:,.0f}/m3
-        Biaya Mandiri (Unit): Rp {total_produksi_mandiri:,.0f}/m3
+    # TOMBOL COPY FINAL
+    if st.button("📝 Generate Full Analysis Report"):
+        report = f"""
+        *EXECUTIVE SUMMARY - {mutu}*
+        Volume Proyek: {total_vol_proyek} m3
+        Payback Period: {pb_period:.1f} Bulan
         ---------------------------
-        PROFIT DARI EFISIENSI: Rp {penghematan_per_m3:,.0f}/m3
-        TOTAL SAVING PROYEK: Rp {total_saving:,.0f}
+        KEBUTUHAN MATERIAL TOTAL:
+        - Semen: {tot_semen:,.0f} Sak
+        - Pasir: {tot_pasir:,.1f} m3
+        - Koral: {tot_koral:,.1f} m3
+        ---------------------------
+        EFISIENSI PRODUKSI:
+        Metode Aimix {output_aimix/15:.1f}x lebih cepat dibanding manual.
         """
-        st.code(narasi, language="markdown")
+        st.code(report, language="markdown")
         
 # ==========================================
 # MODUL 6 & 7: KOMPETITOR & UPSELL
