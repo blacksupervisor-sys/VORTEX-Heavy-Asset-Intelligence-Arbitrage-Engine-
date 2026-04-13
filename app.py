@@ -149,7 +149,7 @@ with st.expander("💬 Modul 4: AI Comment Sniper", expanded=False):
 # ==========================================
 # MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD (UNIFIED)
 # ==========================================
-with st.expander("💎 MODUL 8: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=True):
+with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=True):
     st.markdown("### 📊 Analisis Finansial & Teknis Terpadu")
     
     # Semua fitur dilebur ke dalam 4 Tab yang rapi
