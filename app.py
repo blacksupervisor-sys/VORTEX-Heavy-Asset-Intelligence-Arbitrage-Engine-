@@ -100,7 +100,7 @@ def create_visual_pdf(text, logo, brand, product_bytes):
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/engineering.png", width=70)
     st.title("⚙️ Command Center")
-    st.success("Model: gemini-1.5-flash")
+    st.success("Model: gemini-flash-latest")
     st.info("Library: AIMIX, Tatsuo, New Timehope")
     st.divider()
     wa_num = st.text_input("WhatsApp Sales", "+6281230857759")
@@ -128,7 +128,7 @@ with st.expander("📡 Modul 1: Radar Intelijen (Cuaca & Tender)", expanded=Fals
         cakupan_radar = st.selectbox("Wilayah", ["Kalimantan Timur & IKN", "Seluruh Kalimantan", "Maluku & Indonesia Timur"])
         if st.button("🛰️ Scan Tender", use_container_width=True):
             with st.spinner(f"Memindai LPSE di {cakupan_radar}..."):
-                model_radar = genai.GenerativeModel('gemini-1.5-flash')
+                model_radar = genai.GenerativeModel('gemini-flash-latest')
                 res = model_radar.generate_content(f"Cari info tren proyek infrastruktur, tambang di {cakupan_radar} bulan ini.")
                 st.session_state.project_scenario = res.text
             st.toast("Radar Tender Berhasil!")
@@ -160,7 +160,7 @@ with st.expander("🎯 Modul 2: Ekstraksi Spek & Analisis", expanded=False):
             st.toast("🖼️ Gambar Dibaca!")
         
     if st.button("🔍 Analisis Sudut Serang", use_container_width=True, type="primary"):
-        model_intel = genai.GenerativeModel('gemini-1.5-flash')
+        model_intel = genai.GenerativeModel('gemini-flash-latest')
         intel_prompt = f"Analisis marketing untuk {brand} {unit_type}. Kondisi: {final_scenario}. Spek: {pdf_text}. Buat: 1. Pain Points, 2. Solusi Teknis, 3. Killer Angle."
         contents = [intel_prompt]
         if image_data: contents.append(image_data)
@@ -180,7 +180,7 @@ with st.expander("🏭 Modul 3: Pabrik Konten & Publishing", expanded=False):
         if not st.session_state.intelligence_data:
             st.warning("Jalankan Modul 2 dulu!")
         else:
-            model_factory = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
+            model_factory = genai.GenerativeModel('gemini-flash-latest', generation_config={"response_mime_type": "application/json"})
             factory_prompt = f"Data: {st.session_state.intelligence_data}. Buat kampanye {brand} {unit_type}. JSON strict: {{'copywriting': 'teks', 'veo_prompts': [{{'scene': 1, 'visual': 'prompt', 'vo': 'suara', 'sfx': 'efek'}}]}}"
             with st.spinner("Memproduksi JSON..."):
                 res_json = model_factory.generate_content(factory_prompt)
@@ -203,7 +203,7 @@ with st.expander("🏭 Modul 3: Pabrik Konten & Publishing", expanded=False):
 with st.expander("💬 Modul 4: AI Comment Sniper", expanded=False):
     komen = st.text_area("Paste Komentar Prospek/Haters:")
     if st.button("🎯 Tembak Balasan", use_container_width=True):
-        model_sniper = genai.GenerativeModel('gemini-1.5-flash')
+        model_sniper = genai.GenerativeModel('gemini-flash-latest')
         with st.spinner("Meracik balasan..."):
             st.success(model_sniper.generate_content(f"Balas komentar: '{komen}' untuk {brand} {unit_type}. Deteksi Hot Lead/Skeptis/Troll, patahkan argumennya.").text)
 
@@ -345,7 +345,7 @@ with st.expander("⚔️ Modul 6 & 7: Kill-Switch & Upsell", expanded=False):
     st.markdown("**Kompetitor Kill-Switch**")
     kom_brand = st.text_input("Merek Lawan")
     if st.button("☠️ Generate Battlecard", use_container_width=True):
-        st.success(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Bandingkan {brand} vs {kom_brand}. Beri kelemahan lawan dan cara kita menang.").text)
+        st.success(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Bandingkan {brand} vs {kom_brand}. Beri kelemahan lawan dan cara kita menang.").text)
     
     st.divider()
     st.markdown("**Upsell Predictor**")
@@ -353,7 +353,7 @@ with st.expander("⚔️ Modul 6 & 7: Kill-Switch & Upsell", expanded=False):
     tgl_beli = st.date_input("Tgl Beli", datetime.date(2026, 1, 1))
     if st.button("🔮 Prediksi Maintenance", use_container_width=True):
         hari_op = (datetime.date.today() - tgl_beli).days
-        st.info(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Alat {brand} jalan {hari_op*10} jam. Apa yang harus diganti? Buat WA Upsell.").text)
+        st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Alat {brand} jalan {hari_op*10} jam. Apa yang harus diganti? Buat WA Upsell.").text)
 
 # ==========================================
 # MODUL 8: TENDER HACKER
@@ -364,7 +364,7 @@ with st.expander("🏛️ Modul 8: LPSE Tender Hacker", expanded=False):
         if tender_file:
             tdr_txt = "".join([PyPDF2.PdfReader(tender_file).pages[i].extract_text() for i in range(min(len(PyPDF2.PdfReader(tender_file).pages), 40))])
             with st.spinner("Membedah tender..."):
-                st.success(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Ekstrak syarat alat dari teks ini: {tdr_txt[:15000]}. Buktikan {brand} memenuhi syarat.").text)
+                st.success(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Ekstrak syarat alat dari teks ini: {tdr_txt[:15000]}. Buktikan {brand} memenuhi syarat.").text)
 
 # ==========================================
 # MODUL 9: CRM MEMORY
@@ -387,7 +387,7 @@ with st.expander("📊 Modul 9: CRM Memory & Report", expanded=False):
         if st.button("Simpan & Buat Laporan"):
             if raw_notes:
                 save_memory(str(tgl_harian), raw_notes)
-                res_daily = genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Rapikan jadi laporan sales: {raw_notes}")
+                res_daily = genai.GenerativeModel('gemini-flash-latest').generate_content(f"Rapikan jadi laporan sales: {raw_notes}")
                 st.info(res_daily.text)
                 
                 doc_d = docx.Document()
@@ -403,7 +403,7 @@ with st.expander("📊 Modul 9: CRM Memory & Report", expanded=False):
         if st.button("Generate Laporan Panjang"):
             if memori:
                 big_data = "\n".join([f"{i['tanggal']}: {i['catatan']}" for i in memori])
-                res_annual = genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Buat Laporan Eksekutif dari riwayat ini:\n{big_data}")
+                res_annual = genai.GenerativeModel('gemini-flash-latest').generate_content(f"Buat Laporan Eksekutif dari riwayat ini:\n{big_data}")
                 st.success(res_annual.text)
 
 # ==========================================
@@ -414,7 +414,7 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
     bahasa_target = st.selectbox("Terjemahkan ke:", ["Mandarin (Simplified - Tiongkok)", "Inggris (Business)", "Korea (Corporate)"], key="expat_lang")
     if st.button("🔠 Terjemahkan", use_container_width=True):
         if teks_indo:
-            st.info(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
+            st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
 
 # ==========================================
 # MODUL 11: PHOTONIS VISUALIZER & AUTO-BROCHURE ENGINE
@@ -464,7 +464,7 @@ with st.expander("📸 MODUL 11: AI Photonis & Auto-Brochure", expanded=True):
                     if st.button("🧠 Jalankan Analisa AI", key="btn_ai"):
                         with st.spinner("Gemini Menganalisa Visual..."):
                             try:
-                                model_p = genai.GenerativeModel('gemini-1.5-flash')
+                                model_p = genai.GenerativeModel('gemini-flash-latest')
                                 img_pil = Image.open(io.BytesIO(st.session_state['fotonis_clean_img']))
                                 prompt_ai = "Berikan spesifikasi teknis mendalam dan copywriting marketing metode AIDA untuk unit ini."
                                 res_p = model_p.generate_content([prompt_ai, img_pil])
