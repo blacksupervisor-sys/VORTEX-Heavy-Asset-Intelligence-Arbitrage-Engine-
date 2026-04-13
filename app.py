@@ -953,24 +953,24 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=T
 
     st.markdown("---")
 
-  # --- TOMBOL GENERATE (MAHAKARYA PREMIUM - WARNA OTOMATIS & ANTI REDUNDANT) ---
+  # --- TOMBOL GENERATE (MAHAKARYA PREMIUM - SESUAI REFERENSI GAMBAR 2) ---
     if st.button("🌟 Generate Ultimate Brochure (PDF & PNG)"):
         if not foto_bro:
             st.warning("⚠️ Mohon upload foto unit terlebih dahulu.")
         else:
-            with st.spinner("VORTEX sedang merender brosur premium..."):
+            with st.spinner("VORTEX sedang merender brosur kualitas katalog..."):
                 import fitz
                 import qrcode
                 import urllib.parse
                 import uuid
 
-                # 1. SETUP IDENTITAS & WARNA TEMA (Otomatis: Aimix=Biru, Tatsuo=Merah)
+                # 1. SETUP IDENTITAS & WARNA TEMA (Otomatis sesuai Brand)
                 if brand_bro == "AIMIX":
-                    b_color = (31, 73, 125) # Biru Aimix Profesional
+                    b_color = (31, 73, 125) # Biru Deep Pro
                 elif brand_bro == "TATSUO":
-                    b_color = (204, 0, 0)   # Merah Tatsuo Berani
+                    b_color = (204, 0, 0)   # Merah Bold
                 else:
-                    b_color = (46, 204, 113) # Hijau Default untuk Brand Lain
+                    b_color = (46, 204, 113) 
                 
                 logo_path = f"temp_logo_{uuid.uuid4()}.png" if logo_file else None
                 if logo_file:
@@ -984,15 +984,14 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=T
                     try:
                         wm_path = f"wm_bg_{uuid.uuid4()}.png"
                         img_wm = Image.open(logo_path).convert("RGBA")
-                        # Opacity sangat tipis (8%) agar elegan
-                        alpha = img_wm.split()[3].point(lambda p: p * 0.08)
+                        alpha = img_wm.split()[3].point(lambda p: p * 0.08) # Opacity 8% (Sangat Halus)
                         img_wm.putalpha(alpha)
                         img_wm.save(wm_path, "PNG")
-                        pdf.image(wm_path, x=45, y=40, w=120)
+                        pdf.image(wm_path, x=45, y=35, w=120) # Posisi Tengah Latar
                         os.remove(wm_path)
                     except: pass
 
-                # 3. QR CODE & BRANDING HEADER
+                # 3. QR CODE & HEADER BRANDING
                 if ref_link:
                     qr_path = f"qr_{uuid.uuid4()}.png"
                     qrcode.make(ref_link).save(qr_path)
@@ -1001,18 +1000,18 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=T
                     pdf.set_text_color(*b_color); pdf.cell(30, 3, "SCAN FOR DETAILS", align='C')
                     os.remove(qr_path)
                 
-                # 4. HERO IMAGE (TAJAM & BERSIH)
+                # 4. HERO IMAGE (UTUH & TAJAM)
                 img_path = f"temp_hero_{uuid.uuid4()}.png"
                 with open(img_path, "wb") as f: f.write(foto_bro.getbuffer())
-                pdf.image(img_path, x=42, y=12, w=125)
+                pdf.image(img_path, x=42, y=10, w=125)
                 os.remove(img_path)
                 
-                # 5. HEADLINE & MODEL (ANTI-TABRAKAN)
+                # 5. HEADLINE & TIPE UNIT (POSISI PRESISI Y=112)
                 pdf.set_y(112) 
                 pdf.set_font('helvetica', 'B', 18); pdf.set_text_color(20, 20, 20)
                 pdf.multi_cell(0, 9, f"{brand_bro} {model_bro}\n{headline_bro}", align='C')
                 
-                # 6. SPESIFIKASI BAR (DATA TEKNIS UTAMA)
+                # 6. SPESIFIKASI BAR (MODERN LIGHT GREY)
                 pdf.ln(4)
                 current_y = pdf.get_y()
                 pdf.set_fill_color(245, 245, 245)
@@ -1023,7 +1022,7 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=T
                 pdf.cell(63, 6, f"{spec_cap.upper()}", align='C')
                 pdf.cell(63, 6, f"{spec_weight.upper()}", align='C', ln=True)
                 
-                # 7. TRUST BADGES (WARNA BRAND)
+                # 7. TRUST BADGES (WARNA IDENTITAS BRAND)
                 pdf.ln(6)
                 pdf.set_font('helvetica', 'B', 9); pdf.set_text_color(255, 255, 255)
                 pdf.set_fill_color(*b_color)
@@ -1032,34 +1031,28 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=T
                 if badge2: pdf.set_xy(75, badge_y); pdf.cell(60, 7, badge2.upper(), align='C', fill=True)
                 if badge3: pdf.set_xy(140, badge_y); pdf.cell(60, 7, badge3.upper(), align='C', fill=True)
                 
-                # 8. 4 ULASAN PRODUK PREMIUM (ANTI-REDUNDANT)
-                # Filter hanya poin ulasan, maksimal 4 poin untuk efisiensi visual
+                # 8. 4 ULASAN PRODUK (ANTI-REDUNDANT & BERSIH)
                 pdf.set_y(badge_y + 12)
-                # Ambil dari final_copy_bro, pecah per baris, ambil 4 baris pertama yang valid
-                all_lines = [l for l in final_copy_bro.strip().split('\n') if '|' in l]
-                unique_reviews = all_lines[:4]
+                unique_reviews = [l for l in final_copy_bro.strip().split('\n') if '|' in l][:4]
                 
                 for line in unique_reviews:
-                    judul_fitur, desk_fitur = line.split('|', 1)
-                    # Bullet Point (Warna Brand)
+                    judul_f, desk_f = line.split('|', 1)
                     pdf.set_fill_color(*b_color)
-                    pdf.ellipse(10, pdf.get_y() + 1.5, 3, 3, 'F')
-                    # Judul Ulasan
+                    pdf.ellipse(10, pdf.get_y() + 1.5, 3, 3, 'F') # Bullet Point Elegan
                     pdf.set_xy(15, pdf.get_y()); pdf.set_font('helvetica', 'B', 11)
-                    pdf.set_text_color(*b_color); pdf.cell(0, 6, judul_fitur.strip().upper(), ln=True)
-                    # Deskripsi Ulasan
+                    pdf.set_text_color(*b_color); pdf.cell(0, 6, judul_f.strip().upper(), ln=True)
                     pdf.set_xy(15, pdf.get_y()); pdf.set_font('helvetica', '', 10)
-                    pdf.set_text_color(50, 50, 50); pdf.multi_cell(0, 5, desk_fitur.strip())
+                    pdf.set_text_color(50, 50, 50); pdf.multi_cell(0, 5, desk_f.strip())
                     pdf.ln(3)
                 
-                # 9. FOOTER KONTAK
+                # 9. FOOTER KONTAK & SALES INFO
                 pdf.set_y(245)
                 pdf.set_font('helvetica', 'B', 11); pdf.set_text_color(20, 20, 20)
                 pdf.cell(0, 6, "HUBUNGI SALES KAMI:", ln=True)
                 pdf.set_font('helvetica', 'B', 16); pdf.set_text_color(*b_color)
                 pdf.cell(0, 8, f"WhatsApp: {wa_num}", ln=True)
 
-                # 10. CLEANUP & OUTPUT (GAMBAR 2 STYLE)
+                # 10. EXPORT HIGH-QUALITY (DPI 300)
                 pdf_out = pdf.output(dest='S')
                 pdf_bytes = bytes(pdf_out)
                 doc_img = fitz.open("pdf", pdf_bytes)
@@ -1067,13 +1060,15 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=T
 
                 if logo_path and os.path.exists(logo_path): os.remove(logo_path)
 
-                st.success(f"🎉 Brosur {brand_bro} Mahakarya Berhasil Dibuat!")
+                st.success(f"🎉 Brosur Mahakarya Berhasil Dibuat!")
                 c1, c2, c3 = st.columns(3)
                 with c1: st.download_button("⬇️ PDF", pdf_bytes, f"Brosur_{brand_bro}.pdf", "application/pdf", use_container_width=True)
                 with c2: st.download_button("🖼️ PNG", png_bytes, f"Brosur_{brand_bro}.png", "image/png", use_container_width=True)
                 with c3: 
-                    encoded_wa = urllib.parse.quote(f"Halo, berikut penawaran {brand_bro} {model_bro}.")
-                    st.markdown(f'<a href="https://wa.me/{wa_num.replace("+","")}?text={encoded_wa}" target="_blank" style="display:block;text-align:center;background:#25D366;color:white;padding:10px;border-radius:8px;text-decoration:none;font-weight:bold;">📲 WhatsApp</a>', unsafe_allow_html=True)# ==========================================
+                    msg = urllib.parse.quote(f"Halo, berikut penawaran unit {brand_bro} {model_bro}.")
+                    st.markdown(f'<a href="https://wa.me/{wa_num.replace("+","")}?text={msg}" target="_blank" style="display:block;text-align:center;background:#25D366;color:white;padding:10px;border-radius:8px;text-decoration:none;font-weight:bold;">📲 WhatsApp</a>', unsafe_allow_html=True)
+                    
+# ==========================================
 # FOOTER
 # ==========================================
 st.markdown("<div class='footer'>Architected & Developed by <b>Adjie Agung</b> <br> VORTEX 4.0 - Heavy-Asset Domination System</div>", unsafe_allow_html=True)            
