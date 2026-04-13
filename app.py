@@ -953,171 +953,110 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=T
 
     st.markdown("---")
 
-    # --- TOMBOL GENERATE (LAYOUT ELEGAN GAMBAR 2) ---
-   # --- TOMBOL GENERATE (LAYOUT FINAL MAHAKARYA GAMBAR 2) ---
+   # --- TOMBOL GENERATE (EKSEKUSI MAHAKARYA - ANTI TABRAKAN) ---
     if st.button("🌟 Generate Ultimate Brochure (PDF & PNG)"):
         if not foto_bro:
-            st.warning("⚠️ Mohon upload foto unit (di kolom kiri) terlebih dahulu.")
+            st.warning("⚠️ Mohon upload foto unit terlebih dahulu.")
         else:
-            with st.spinner("Merender Mahakarya Brosur..."):
+            with st.spinner("VORTEX sedang merakit tata letak elegan..."):
                 import fitz
                 import qrcode
                 import urllib.parse
                 import uuid
+
+                # 1. IDENTITAS VISUAL & TEMA
+                b_color = (31, 73, 125) if brand_bro == "AIMIX" else (204, 0, 0)
+                if brand_bro == "NEW TIMEHOPE": b_color = (46, 204, 113)
                 
-                # Setup Warna Tema
-                if brand_bro == "AIMIX": b_color = (31, 73, 125) # Biru Gelap
-                elif brand_bro == "TATSUO": b_color = (204, 0, 0) # Merah
-                else: b_color = (46, 204, 113) # Hijau
-                
-                logo_path = None
+                logo_path = f"temp_logo_{uuid.uuid4()}.png" if logo_file else None
                 if logo_file:
-                    logo_path = f"temp_logo_{uuid.uuid4()}.png"
                     with open(logo_path, "wb") as f: f.write(logo_file.getbuffer())
                 
-                # Inisialisasi Class
                 pdf = ULTIMATE_BROCHURE(brand_color=b_color, brand_name=brand_bro, website_link=ref_link, logo_path=logo_path, wa_number=wa_num)
                 pdf.add_page()
                 
-                # 1. WATERMARK (Opacity 10% - Berbayang Elegan)
-                if logo_path and os.path.exists(logo_path):
-                    try:
-                        wm_path = f"wm_{uuid.uuid4()}.png"
-                        img_w = Image.open(logo_path).convert("RGBA")
-                        alpha = img_w.split()[3]
-                        alpha = alpha.point(lambda p: p * 0.1)
-                        img_w.putalpha(alpha)
-                        img_w.save(wm_path, "PNG")
-                        pdf.image(wm_path, x=35, y=90, w=140)
-                        os.remove(wm_path)
-                    except: pass 
-
-                # 2. QR CODE (Pojok Kiri Atas)
+                # 2. QR CODE (Pojok Kiri Atas - Bersih)
                 if ref_link:
-                    qr = qrcode.make(ref_link)
                     qr_path = f"qr_{uuid.uuid4()}.png"
-                    qr.save(qr_path)
-                    pdf.image(qr_path, x=15, y=8, w=24, h=24)
-                    pdf.set_xy(11, 33)
-                    pdf.set_font('helvetica', 'B', 6)
-                    pdf.set_text_color(*b_color)
-                    pdf.cell(32, 3, "SCAN FOR DETAILS", align='C')
-                    if os.path.exists(qr_path): os.remove(qr_path)
+                    qrcode.make(ref_link).save(qr_path)
+                    pdf.image(qr_path, x=15, y=8, w=22, h=22)
+                    pdf.set_xy(11, 30); pdf.set_font('helvetica', 'B', 6)
+                    pdf.set_text_color(*b_color); pdf.cell(30, 3, "SCAN FOR DETAILS", align='C')
+                    os.remove(qr_path)
                 
-                # 3. GAMBAR HERO UNIT UTAMA (Tengah Gagah)
+                # 3. HERO IMAGE (Rendering Tengah Tanpa Background)
                 img_path = f"temp_hero_{uuid.uuid4()}.png"
                 with open(img_path, "wb") as f: f.write(foto_bro.getbuffer())
-                # y=15 memastikan gambar berada di atas headline
-                pdf.image(img_path, x=42, y=15, w=125)
-                if os.path.exists(img_path): os.remove(img_path)
+                # Posisi Y=10 agar gambar berada di area atas yang lapang
+                pdf.image(img_path, x=45, y=10, w=120) 
+                os.remove(img_path)
                 
-                # 4. HEADLINE & TIPE UNIT
-                # Berikan jarak ln(100) setelah gambar hero agar teks tidak tertabrak
-                pdf.set_y(115) 
-                pdf.set_font('helvetica', 'B', 18) 
-                pdf.set_text_color(20, 20, 20)
-                # Gunakan multi_cell agar teks headline bisa dua baris jika panjang
-                pdf.multi_cell(0, 10, f"{brand_bro} {model_bro} - {headline_bro}", align='C')
+                # 4. HEADLINE & MODEL (Anchor: Y=110)
+                # Jarak aman agar tidak menabrak roda alat berat
+                pdf.set_y(110) 
+                pdf.set_font('helvetica', 'B', 18); pdf.set_text_color(20, 20, 20)
+                pdf.multi_cell(0, 9, f"{brand_bro} {model_bro}\n{headline_bro}", align='C')
                 
-                # 5. KOTAK SPESIFIKASI CEPAT (Abu-abu Muda)
-                pdf.ln(2)
-                pdf.set_fill_color(245, 245, 245)
-                # Posisi rect harus sesuai dengan Y teks
-                pdf.rect(10, pdf.get_y(), 190, 12, 'F')
-                
-                # Cetak Teks Specs di atas kotak
-                pdf.set_y(pdf.get_y() + 3)
-                pdf.set_font('helvetica', 'B', 9)
-                pdf.set_text_color(80, 80, 80)
-                # x=10 adalah margin kiri
+                # 5. SPESIFIKASI BAR (Anchor: Y + 5)
+                pdf.ln(5)
+                current_y = pdf.get_y()
+                pdf.set_fill_color(245, 245, 245) # Abu-abu sangat muda
+                pdf.rect(10, current_y, 190, 10, 'F')
+                pdf.set_y(current_y + 2)
+                pdf.set_font('helvetica', 'B', 9); pdf.set_text_color(80, 80, 80)
                 pdf.cell(63, 6, f"{spec_engine.upper()}", align='C')
                 pdf.cell(63, 6, f"{spec_cap.upper()}", align='C')
                 pdf.cell(63, 6, f"{spec_weight.upper()}", align='C', ln=True)
                 
-                # 6. TRUST BADGES (GARANSI, READY STOCK, DKK)
-                pdf.ln(5)
-                pdf.set_font('helvetica', 'B', 10)
-                pdf.set_text_color(255, 255, 255) # Teks Putih
-                start_x = 10
-                box_w = 60
-                spacing = 5
-                
-                # Cetak 3 kotak badge sekaligus
+                # 6. TRUST BADGES (Solid Color Boxes)
+                pdf.ln(6)
+                pdf.set_font('helvetica', 'B', 9); pdf.set_text_color(255, 255, 255)
                 pdf.set_fill_color(*b_color)
-                pdf.set_xy(start_x, pdf.get_y())
-                if badge1: pdf.cell(box_w, 8, f"{badge1.upper()}", align='C', fill=True)
-                pdf.cell(spacing, 8, "", align='C')
-                if badge2: pdf.cell(box_w, 8, f"{badge2.upper()}", align='C', fill=True)
-                pdf.cell(spacing, 8, "", align='C')
-                if badge3: pdf.cell(box_w, 8, f"{badge3.upper()}", align='C', fill=True, ln=True)
-                pdf.ln(8)
+                badge_y = pdf.get_y()
+                if badge1: pdf.set_xy(10, badge_y); pdf.cell(60, 7, badge1.upper(), align='C', fill=True)
+                if badge2: pdf.set_xy(75, badge_y); pdf.cell(60, 7, badge2.upper(), align='C', fill=True)
+                if badge3: pdf.set_xy(140, badge_y); pdf.cell(60, 7, badge3.upper(), align='C', fill=True)
                 
-                # 7. COPYWRITING AI DENGAN BULLET POINT
+                # 7. COPYWRITING AI (Clean Bullet Points)
+                pdf.set_y(badge_y + 12)
                 lines = final_copy_bro.strip().split('\n')
                 for line in lines:
                     if '|' in line:
-                        judul, deskripsi = line.split('|', 1)
-                        # Membersihkan markdown dan merapikan teks
-                        judul_bersih = judul.replace("**", "").replace("*", "").strip().upper()
-                        deskripsi_bersih = deskripsi.replace("**", "").replace("*", "").strip()
-                        
-                        # Render Bullet Point (Ellipse Biru/Merah)
+                        judul, desk = line.split('|', 1)
+                        # Bullet Point Merah/Biru
                         pdf.set_fill_color(*b_color)
-                        pdf.ellipse(10, pdf.get_y() + 2, 3, 3, 'F')
-                        
-                        # Render Judul Fitur
-                        pdf.set_xy(16, pdf.get_y())
-                        pdf.set_font('helvetica', 'B', 12)
-                        pdf.set_text_color(*b_color)
-                        pdf.cell(0, 6, judul_bersih, ln=True)
-                        
-                        # Render Deskripsi Fitur
-                        pdf.set_xy(16, pdf.get_y())
-                        pdf.set_font('helvetica', '', 10)
-                        pdf.set_text_color(50, 50, 50)
-                        pdf.multi_cell(0, 5, deskripsi_bersih)
-                        pdf.ln(4) # Jarak antar poin
+                        pdf.ellipse(10, pdf.get_y() + 1.5, 3, 3, 'F')
+                        # Judul
+                        pdf.set_xy(15, pdf.get_y()); pdf.set_font('helvetica', 'B', 11)
+                        pdf.set_text_color(*b_color); pdf.cell(0, 6, judul.strip().upper(), ln=True)
+                        # Deskripsi (Auto-wrap)
+                        pdf.set_xy(15, pdf.get_y()); pdf.set_font('helvetica', '', 10)
+                        pdf.set_text_color(40, 40, 40); pdf.multi_cell(0, 5, desk.strip())
+                        pdf.ln(3)
                 
-                # 8. BAGIAN KONTAK SALES (BAWAH)
-                # Amankan posisi Y agar kontak berada di bagian bawah dokumen
-                safe_y = max(pdf.get_y() + 8, 245)
-                pdf.set_xy(10, safe_y)
-                
-                # Judul Kontak
-                pdf.set_font('helvetica', 'B', 12)
-                pdf.set_text_color(20, 20, 20)
-                pdf.cell(50, 6, "HUBUNGI SALES KAMI:", ln=True)
-                
-                # Nomor WA Besar
-                pdf.set_font('helvetica', 'B', 16)
-                pdf.set_text_color(*b_color)
-                wa_link = f"https://wa.me/{wa_num.replace('+', '')}"
-                pdf.cell(50, 8, f"WhatsApp: {wa_num}", link=wa_link, ln=True)
+                # 8. FOOTER CONTACT (Fixed Bottom)
+                pdf.set_y(245)
+                pdf.set_font('helvetica', 'B', 11); pdf.set_text_color(20, 20, 20)
+                pdf.cell(0, 6, "HUBUNGI SALES KAMI:", ln=True)
+                pdf.set_font('helvetica', 'B', 16); pdf.set_text_color(*b_color)
+                pdf.cell(0, 8, f"WhatsApp: {wa_num}", ln=True)
+
+                # 9. FINALISASI DATA & EXPORT
+                pdf_out = pdf.output(dest='S')
+                pdf_bytes = bytes(pdf_out)
+                doc_img = fitz.open("pdf", pdf_bytes)
+                png_bytes = doc_img.load_page(0).get_pixmap(dpi=300).tobytes("png")
 
                 if logo_path and os.path.exists(logo_path): os.remove(logo_path)
 
-                # --- EXPORT KE PDF & PNG (LAYOUT GAMBAR 2) ---
-                out = pdf.output(dest='S')
-                pdf_bytes = bytes(out)
-                
-                # Render Gambar untuk preview WA
-                doc = fitz.open("pdf", pdf_bytes)
-                page = doc.load_page(0)
-                pix = page.get_pixmap(dpi=300)
-                png_bytes = pix.tobytes("png")
-                
-                st.success("🎉 Brosur Marketing Mahakarya Berhasil Dibuat!")
-                
-                # 3 Tombol Download Horizontal (Persis Gambar 2)
-                dl1, dl2, dl3 = st.columns(3)
-                with dl1:
-                    st.download_button("⬇️ Download High-Res PDF", data=pdf_bytes, file_name=f"Brosur_{brand_bro}.pdf", mime="application/pdf", use_container_width=True)
-                with dl2:
-                    st.download_button("🖼️ Download Gambar (PNG)", data=png_bytes, file_name=f"Brosur_{brand_bro}.png", mime="image/png", use_container_width=True)
-                with dl3:
-                    encoded_wa = urllib.parse.quote(f"Halo, berikut brosur {brand_bro} {model_bro}.")
-                    st.markdown(f'<a href="https://wa.me/{wa_num}?text={encoded_wa}" target="_blank" style="display:block;text-align:center;background:#25D366;color:white;padding:10px;border-radius:8px;text-decoration:none;font-weight:bold;">📲 Kirim via WA</a>', unsafe_allow_html=True)
-                    
+                # 10. OUTPUT UI (LAYOUT 3 KOLOM SEJAJAR)
+                st.success("🎉 Brosur Mahakarya berhasil dibuat dengan Layout Sempurna!")
+                c1, c2, c3 = st.columns(3)
+                with c1: st.download_button("⬇️ Download High-Res PDF", pdf_bytes, f"Brosur_{brand_bro}.pdf", "application/pdf", use_container_width=True)
+                with c2: st.download_button("🖼️ Download Gambar (PNG)", png_bytes, f"Brosur_{brand_bro}.png", "image/png", use_container_width=True)
+                with c3: 
+                    msg = urllib.parse.quote(f"Halo, berikut penawaran unit {brand_bro} {model_bro}.")
+                    st.markdown(f'<a href="https://wa.me/{wa_num.replace("+","")}?text={msg}" target="_blank" style="display:block;text-align:center;background:#25D366;color:white;padding:10px;border-radius:8px;text-decoration:none;font-weight:bold;">📲 Kirim via WA</a>', unsafe_allow_html=True)                    
 # ==========================================
 # FOOTER
 # ==========================================
