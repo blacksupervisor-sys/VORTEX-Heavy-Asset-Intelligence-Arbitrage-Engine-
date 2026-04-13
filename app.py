@@ -41,7 +41,7 @@ if "project_scenario" not in st.session_state: st.session_state.project_scenario
 if "current_weather" not in st.session_state: st.session_state.current_weather = ""
 
 # ==========================================
-# FUNGSI PDF UNTUK PHOTONIS (MODUL 11)
+# FUNGSI PDF UNTUK PHOTONIS (CORPORATE ELITE EDITION)
 # ==========================================
 class VISUAL_PDF(FPDF):
     def __init__(self, logo_image=None, brand_name="", product_image=None):
@@ -51,48 +51,156 @@ class VISUAL_PDF(FPDF):
         self.product_image = product_image
 
     def header(self):
+        # 1. Logo Perusahaan (Kiri)
         if self.logo_image:
             img_buf = io.BytesIO()
             self.logo_image.save(img_buf, format='PNG')
             img_buf.seek(0)
-            self.image(img_buf, 10, 8, 30)
-            self.set_x(45)
-        
-        self.set_font('helvetica', 'B', 15)
-        self.cell(0, 10, self.brand_name, border=False, ln=True, align='L')
-        self.set_font('helvetica', 'I', 8)
-        self.set_x(45) if self.logo_image else None
-        self.cell(0, 5, f"Verified Technical Report | {datetime.date.today()}", ln=True)
-        self.line(10, 40, 200, 40)
-        self.ln(15)
+            self.image(img_buf, 10, 10, 35)
+
+        # 2. Judul Dokumen (Kanan) - Warna Biru Korporat
+        self.set_font('helvetica', 'B', 16)
+        self.set_text_color(31, 73, 125) 
+        self.cell(0, 6, "OFFICIAL TECHNICAL REPORT", border=False, ln=True, align='R')
+
+        # 3. Sub-Judul Ekosistem
+        self.set_font('helvetica', 'I', 9)
+        self.set_text_color(100, 100, 100)
+        self.cell(0, 5, "Tatsuo & AIMIX Heavy Equipment Ecosystem", border=False, ln=True, align='R')
+
+        # 4. Tanggal Dibuat (Timestamp)
+        now_str = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.set_font('helvetica', '', 8)
+        self.cell(0, 5, f"Generated: {now_str}", border=False, ln=True, align='R')
+
+        # 5. Garis Pemisah Biru
+        self.ln(3)
+        self.set_draw_color(31, 73, 125)
+        self.set_line_width(0.5)
+        self.line(10, self.get_y(), 200, self.get_y())
+        self.ln(5)
 
     def footer(self):
         self.set_y(-15)
         self.set_font('helvetica', 'I', 8)
-        self.cell(0, 10, f"Developed by Adjie Agung - VORTEX Engine", align='C')
+        self.set_text_color(128, 128, 128)
+        self.cell(0, 10, f"Developed by Adjie Agung - VORTEX Intelligence Engine", align='C')
 
 def create_visual_pdf(text, logo, brand, product_bytes):
     pdf = VISUAL_PDF(logo_image=logo, brand_name=brand)
     pdf.add_page()
     
+    # --- RENDER GAMBAR PRODUK ---
     if product_bytes:
         prod_img = Image.open(io.BytesIO(product_bytes))
         prod_buf = io.BytesIO()
         prod_img.save(prod_buf, format='PNG')
         prod_buf.seek(0)
-        pdf.image(prod_buf, x=55, y=45, w=100)
-        pdf.ln(85) 
+        pdf.image(prod_buf, x=50, y=pdf.get_y()+2, w=110)
+        pdf.ln(75) 
 
-    clean_text = text.replace('**', '').replace('*', '').replace('#', '').replace('---', '')
-    pdf.set_font("helvetica", size=11)
-    pdf.set_text_color(40, 40, 40) 
-    normalized_text = clean_text.encode('latin-1', 'ignore').decode('latin-1')
+    # --- PISAHKAN DATA BOX & KONTEN ---
+    lines = text.encode('latin-1', 'ignore').decode('latin-1').replace('**', '').split('\n')
+    box_data = []
+    content_lines = []
     
-    for line in normalized_text.split('\n'):
-        stripped_line = line.strip()
-        if stripped_line:
-            pdf.multi_cell(0, 7, stripped_line)
+    for line in lines:
+        line_str = line.strip()
+        if line_str.startswith("UNIT:") or line_str.startswith("KATEGORI:") or line_str.startswith("FOKUS:"):
+            box_data.append(line_str)
+        else:
+            content_lines.append(line_str)
+
+    # --- RENDER DATA BOX (KOTAK INFORMASI) ---
+    if box_data:
+        pdf.set_fill_color(242, 247, 252) # Biru sangat muda
+        pdf.set_draw_color(31, 73, 125)
+        pdf.set_line_width(0.3)
+        
+        pdf.set_font("helvetica", "B", 10)
+        pdf.set_text_color(31, 73, 125)
+        pdf.cell(0, 8, " INFORMASI UNIT UTAMA", border="LTR", ln=True, fill=True)
+        
+        pdf.set_font("helvetica", "", 10)
+        pdf.set_text_color(0, 0, 0)
+        for bd in box_data:
+            parts = bd.split(":", 1)
+            if len(parts) == 2:
+                pdf.cell(35, 7, f" {parts[0].strip()}", border="L", fill=True)
+                pdf.cell(0, 7, f": {parts[1].strip()}", border="R", ln=True, fill=True)
+            else:
+                pdf.cell(0, 7, f" {bd}", border="LR", ln=True, fill=True)
+                
+        pdf.cell(0, 2, "", border="LBR", ln=True, fill=True)
+        pdf.ln(5)
+
+    # --- RENDER KONTEN TEKS & TABEL CERDAS ---
+    in_table = False
+    for line in content_lines:
+        if not line:
+            if in_table:
+                pdf.ln(3)
+                in_table = False
+            else:
+                pdf.ln(2)
+            continue
+            
+        # Jika AI membuat Tabel (| Kolom 1 | Kolom 2 |)
+        if line.startswith('|'):
+            if '|---' in line or '|:' in line: 
+                continue # Abaikan baris pemisah tabel markdown
+                
+            cells = [c.strip() for c in line.split('|')[1:-1]]
+            if not cells: continue
+            
+            col_w = 190 / len(cells) # Lebar kolom proporsional otomatis
+            
+            if not in_table:
+                # Render Header Tabel (Biru)
+                pdf.set_font("helvetica", "B", 9)
+                pdf.set_fill_color(41, 128, 185) # Biru terang korporat
+                pdf.set_text_color(255, 255, 255)
+                pdf.set_draw_color(200, 200, 200)
+                for cell in cells:
+                    pdf.cell(col_w, 8, cell, border=1, fill=True)
+                pdf.ln()
+                in_table = True
+            else:
+                # Render Isi Tabel (Putih)
+                pdf.set_font("helvetica", "", 9)
+                pdf.set_fill_color(255, 255, 255)
+                pdf.set_text_color(0, 0, 0)
+                for cell in cells:
+                    pdf.cell(col_w, 7, cell, border=1, fill=True)
+                pdf.ln()
+            continue
+        else:
+            in_table = False
+
+        # Render Judul Bagian (Heading)
+        if line.startswith('## '):
+            clean_line = line.replace('##', '').strip()
+            pdf.ln(4)
+            pdf.set_font("helvetica", "B", 11)
+            pdf.set_text_color(0, 0, 0)
+            pdf.cell(0, 8, clean_line.upper(), border=0, ln=True)
             pdf.ln(1)
+            
+        # Render Poin-poin
+        elif line.startswith('- ') or line.startswith('* '):
+            clean_line = line[2:].strip()
+            pdf.set_font("helvetica", "", 10)
+            pdf.set_text_color(40, 40, 40)
+            pdf.set_x(15)
+            pdf.multi_cell(0, 6, f"•  {clean_line}")
+            pdf.set_x(10)
+            
+        # Render Paragraf Biasa
+        elif not line.startswith('#'):
+            pdf.set_font("helvetica", "", 10)
+            pdf.set_text_color(40, 40, 40)
+            pdf.multi_cell(0, 6, line)
+
     return pdf.output()
 
 # ==========================================
