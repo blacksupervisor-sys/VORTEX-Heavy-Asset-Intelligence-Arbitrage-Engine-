@@ -111,6 +111,56 @@ with st.expander("🎯 Modul 2: Ekstraksi Spek & Analisis", expanded=False):
         st.info(st.session_state.intelligence_data)
 
 # ==========================================
+# MODUL INTELIJEN: LPSE/LKPP CONTRACTOR RADAR
+# ==========================================
+import pandas as pd
+
+with st.expander("📡 Modul Intelijen: LPSE & LKPP Contractor Radar", expanded=True):
+    st.markdown("### 🎯 Pelacak Pemenang Tender Infrastruktur")
+    st.markdown("Sistem ini memindai perusahaan kontraktor yang baru memenangkan proyek dan memprediksi kebutuhan alat berat mereka.")
+    
+    # 1. FILTER PENCARIAN
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        wilayah_target = st.selectbox("📍 Wilayah Proyek:", ["Kalimantan Timur", "Kalimantan Utara", "Kalimantan Selatan", "Maluku", "Papua"])
+    with col2:
+        kategori_proyek = st.selectbox("🏗️ Jenis Pekerjaan:", ["Pembangunan Jalan/Jembatan", "Irigasi & Waduk", "Infrastruktur Tambang", "Pembangunan Gedung"])
+    with col3:
+        nilai_minimal = st.selectbox("💰 Minimal Nilai HPS:", ["> Rp 5 Miliar", "> Rp 15 Miliar", "> Rp 50 Miliar"])
+
+    st.button("🔄 Scan Database LPSE Sekarang", type="primary", use_container_width=True)
+    st.divider()
+
+    # 2. SIMULASI DATABASE INTELIJEN (MOCKUP DATA TINGKAT TINGGI)
+    # Di masa depan, ini bisa dihubungkan langsung ke API LPSE atau file Excel hasil scraping Anda
+    data_tender = {
+        "Nama Perusahaan (Pemenang)": ["PT. Bumi Kaltim Konstruksi", "CV. Pilar Nusantara", "PT. Samudera Timur Engineering"],
+        "Nama Proyek": ["Peningkatan Jalan Lintas Samarinda-Bontang", "Pembangunan Fasilitas Air Bersih Tambang", "Konstruksi Pelabuhan Pengumpan"],
+        "Nilai Kontrak": ["Rp 24.500.000.000", "Rp 8.200.000.000", "Rp 55.400.000.000"],
+        "Prediksi Kebutuhan Unit": ["Excavator (Tatsuo), Buldozer", "Concrete Pump (AIMIX), Mixer", "Excavator Long Arm, Piling (Timehope)"]
+    }
+    df_tender = pd.DataFrame(data_tender)
+
+    # 3. MENAMPILKAN HASIL RADAR
+    st.markdown(f"**🟢 Ditemukan 3 Target Kontraktor Potensial di {wilayah_target}**")
+    st.dataframe(df_tender, use_container_width=True, hide_index=True)
+
+    # 4. ACTION BAR (TINDAKAN PENJUALAN)
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("**⚡ Aksi Eksekusi Target:**")
+    col_act1, col_act2 = st.columns(2)
+    
+    with col_act1:
+        target_pilihan = st.selectbox("Pilih Target untuk Dihubungi:", df_tender["Nama Perusahaan (Pemenang)"])
+    
+    with col_act2:
+        st.markdown("<br>", unsafe_allow_html=True) # Spacer agar sejajar dengan selectbox
+        # Tombol ini akan otomatis menyusun draf WA berdasarkan perusahaan yang dipilih
+        pesan_pendekatan = f"Selamat pagi Pimpinan {target_pilihan}. Selamat atas dimenangkannya tender proyek terbaru. Perkenalkan saya Adjie Agung dari Azarindo. Kami siap mendukung mobilisasi alat berat..."
+        link_wa_pendekatan = f"https://api.whatsapp.com/send?text={pesan_pendekatan.replace(' ', '%20')}"
+        st.markdown(f'<a href="{link_wa_pendekatan}" target="_blank" style="display: block; text-align: center; background-color: #2c3e50; color: white; padding: 8px; border-radius: 6px; text-decoration: none; font-weight: bold;">📝 Buat Draf WA Pendekatan</a>', unsafe_allow_html=True)
+        
+# ==========================================
 # MODUL 3: PABRIK KONTEN & PUBLISHING
 # ==========================================
 with st.expander("🏭 Modul 3: Pabrik Konten & Publishing", expanded=False):
