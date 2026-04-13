@@ -576,6 +576,7 @@ with st.expander("📸 MODUL 11: AI Photonis & Auto-Brochure", expanded=True):
                             try:
                                 model_p = genai.GenerativeModel('gemini-flash-latest')
                                 img_pil = Image.open(io.BytesIO(st.session_state['fotonis_clean_img']))
+                                
                                 prompt_ai = """Bertindaklah sebagai Heavy Equipment Technical Writer. Analisis gambar ini dan buat "OFFICIAL TECHNICAL REPORT". 
 ATURAN FORMAT MUTLAK (SISTEM AKAN ERROR JIKA DILANGGAR):
 1. TIGA BARIS PERTAMA WAJIB BERISI DATA INI (Untuk Data Box):
@@ -583,20 +584,17 @@ UNIT: [Nama Lengkap Unit]
 KATEGORI: [Jenis Alat Berat]
 FOKUS: [Target Penggunaan Utama]
 
-2. Gunakan ## untuk Sub-Judul (Contoh: ## TEMUAN TEKNIS LAPANGAN, ## SPESIFIKASI DETAIL). Jangan gunakan # tunggal.
+2. Gunakan ## untuk Sub-Judul (Contoh: ## TEMUAN TEKNIS LAPANGAN). Jangan gunakan # tunggal.
 3. BUAT TABEL MARKDOWN untuk bagian spesifikasi teknis (Gunakan tanda |). Contoh:
 | Deskripsi Part / Spesifikasi | Detail / Nilai |
 |---|---|
 | Kapasitas Mesin | 82 kW |
 
 4. Gunakan paragraf biasa untuk copywriting penawaran. Bahasa harus sangat formal, bersih, elegan, dan profesional khas korporat B2B tingkat tinggi."""
-ATURAN SANGAT PENTING: 
-1. JANGAN gunakan kata-kata pembuka robot/percakapan seperti "Berdasarkan gambar yang Anda unggah...". Langsung tuliskan nama unit sebagai judul.
-2. DILARANG KERAS menggunakan format Tabel Markdown (garis vertikal |...|). Mesin PDF tidak bisa membacanya.
-3. Gunakan format daftar (bullet point) standar menggunakan tanda strip (-) untuk rincian teknis. Contoh: "- Kapasitas Maksimal: 40 m3/jam".
-4. Susun laporan dengan struktur: Nama Unit, Spesifikasi Teknis Detail, dan Copywriting Penjualan (Metode AIDA). Gunakan bahasa korporat yang elegan, rapi, dan mematikan."""
+                                
                                 res_p = model_p.generate_content([prompt_ai, img_pil])
                                 st.session_state['fotonis_draft_text'] = res_p.text
+                                
                             except Exception as e:
                                 st.error(f"Gagal memproses AI: {e}")
 
