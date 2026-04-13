@@ -849,7 +849,7 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
         
         st.markdown("---")
         
-        # Inisialisasi Memori Default agar tidak error saat pertama kali dibuka
+        # Inisialisasi Memori Default
         if "bro_model" not in st.session_state: st.session_state["bro_model"] = default_model
         if "bro_headline" not in st.session_state: st.session_state["bro_headline"] = "TANGGUH DI SEGALA MEDAN"
         if "bro_sp1" not in st.session_state: st.session_state["bro_sp1"] = "Heavy Duty Engine"
@@ -859,21 +859,21 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
         if "bro_bg2" not in st.session_state: st.session_state["bro_bg2"] = "FREE TRAINING"
         if "bro_bg3" not in st.session_state: st.session_state["bro_bg3"] = "READY STOCK"
 
-        # Input Text akan otomatis terisi oleh AI karena dihubungkan ke session_state via key
-        model_bro = st.text_input("Tipe Unit", key="bro_model")
-        headline_bro = st.text_input("Headline Utama", key="bro_headline")
+        # PERBAIKAN: Menggunakan 'value' yang diikat ke session_state, BUKAN 'key'
+        model_bro = st.text_input("Tipe Unit", value=st.session_state["bro_model"])
+        headline_bro = st.text_input("Headline Utama", value=st.session_state["bro_headline"])
         
         st.caption("Highlight Spesifikasi Cepat (Auto-Fill by AI)")
         c_sp1, c_sp2, c_sp3 = st.columns(3)
-        with c_sp1: spec_engine = st.text_input("Engine / Power", key="bro_sp1")
-        with c_sp2: spec_cap = st.text_input("Sistem Utama", key="bro_sp2")
-        with c_sp3: spec_weight = st.text_input("Kapasitas / Bobot", key="bro_sp3")
+        with c_sp1: spec_engine = st.text_input("Engine / Power", value=st.session_state["bro_sp1"])
+        with c_sp2: spec_cap = st.text_input("Sistem Utama", value=st.session_state["bro_sp2"])
+        with c_sp3: spec_weight = st.text_input("Kapasitas / Bobot", value=st.session_state["bro_sp3"])
 
         st.caption("Stempel Kepercayaan (Trust Badges)")
         b_col1, b_col2, b_col3 = st.columns(3)
-        with b_col1: badge1 = st.text_input("Badge 1", key="bro_bg1")
-        with b_col2: badge2 = st.text_input("Badge 2", key="bro_bg2")
-        with b_col3: badge3 = st.text_input("Badge 3", key="bro_bg3")
+        with b_col1: badge1 = st.text_input("Badge 1", value=st.session_state["bro_bg1"])
+        with b_col2: badge2 = st.text_input("Badge 2", value=st.session_state["bro_bg2"])
+        with b_col3: badge3 = st.text_input("Badge 3", value=st.session_state["bro_bg3"])
 
     with col_b2:
         st.subheader("2. AI Copywriter & Rendering")
@@ -919,7 +919,6 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
                     if pilihan_katalog == "Gunakan Data Teks Fotonis (Modul 11)":
                         scraped_text += st.session_state.get('fotonis_draft_text', "")
                         
-                    # PROMPT BARU: Memaksa Gemini merespon dalam format JSON Strict
                     prompt = f"""
                     Anda adalah Copywriter dan Data Extractor Alat Berat.
                     Baca data spesifikasi di bawah dan kembalikan HANYA format JSON strict dengan struktur berikut:
@@ -944,6 +943,7 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
                     
                     ai_data = json.loads(res_bro.text)
                     
+                    # Memasukkan data AI ke dalam memori
                     st.session_state['bro_model'] = ai_data.get('tipe_unit', st.session_state['bro_model'])
                     st.session_state['bro_headline'] = ai_data.get('headline', st.session_state['bro_headline'])
                     st.session_state['bro_sp1'] = ai_data.get('spec1', st.session_state['bro_sp1'])
@@ -964,148 +964,7 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
 
         ai_raw_text = st.session_state.get('brochure_ai_result', "JUDUL FITUR 1 | Penjelasan fitur yang menjual.\nJUDUL FITUR 2 | Penjelasan efisiensi alat.")
         final_copy_bro = st.text_area("Hasil Copywriting (Bisa Diedit Sebelum Render):", ai_raw_text, height=150)
-
-    st.markdown("---")
-
-    if st.button("🌟 GENERATE ULTIMATE BROCHURE (PDF & PNG)", type="primary", use_container_width=True):
-        if not foto_bro:
-            st.warning("⚠️ Mohon upload foto unit (di kolom kiri) terlebih dahulu.")
-        else:
-            with st.spinner("Merender Brosur Resolusi Tinggi..."):
-                import fitz
-                import qrcode
-                
-                # Setup Warna Tema
-                if brand_bro == "AIMIX": b_color = (31, 73, 125)
-                elif brand_bro == "TATSUO": b_color = (204, 0, 0)
-                else: b_color = (46, 204, 113)
-                
-                logo_path = None
-                if logo_file:
-                    logo_path = f"temp_logo_{uuid.uuid4()}.png"
-                    with open(logo_path, "wb") as f: f.write(logo_file.getbuffer())
-                
-                pdf = ULTIMATE_BROCHURE(brand_color=b_color, brand_name=brand_bro, website_link=ref_link, logo_path=logo_path, wa_number=wa_num)
-                pdf.add_page()
-                
-                # --- WATERMARK ---
-                if logo_path and os.path.exists(logo_path):
-                    try:
-                        wm_path = f"wm_{uuid.uuid4()}.png"
-                        img = Image.open(logo_path).convert("RGBA")
-                        alpha = img.split()[3]
-                        alpha = alpha.point(lambda p: p * 0.1)
-                        img.putalpha(alpha)
-                        img.save(wm_path, "PNG")
-                        pdf.image(wm_path, x=35, y=90, w=140)
-                        os.remove(wm_path)
-                    except: pass 
-
-                # --- QR CODE ---
-                if ref_link:
-                    qr = qrcode.make(ref_link)
-                    qr_path = f"qr_{uuid.uuid4()}.png"
-                    qr.save(qr_path)
-                    pdf.image(qr_path, x=15, y=8, w=24, h=24)
-                    pdf.set_xy(11, 33)
-                    pdf.set_font('helvetica', 'B', 6)
-                    pdf.set_text_color(*b_color)
-                    pdf.cell(32, 3, "SCAN FOR DETAILS", align='C')
-                    if os.path.exists(qr_path): os.remove(qr_path)
-                
-                # --- GAMBAR UTAMA ---
-                img_path = f"temp_hero_{uuid.uuid4()}.png"
-                with open(img_path, "wb") as f: f.write(foto_bro.getbuffer())
-                pdf.image(img_path, x=42, y=15, w=125)
-                if os.path.exists(img_path): os.remove(img_path)
-                
-                # --- HEADLINE & SPECS ---
-                pdf.set_y(115) 
-                pdf.set_font('helvetica', 'B', 18) 
-                pdf.set_text_color(20, 20, 20)
-                pdf.multi_cell(0, 10, f"{brand_bro} {model_bro} - {headline_bro}", align='C')
-                
-                pdf.ln(2)
-                pdf.set_fill_color(245, 245, 245)
-                pdf.rect(10, pdf.get_y(), 190, 12, 'F')
-                
-                pdf.set_y(pdf.get_y() + 3)
-                pdf.set_font('helvetica', 'B', 9)
-                pdf.set_text_color(80, 80, 80)
-                pdf.cell(63, 6, f"{spec_engine.upper()}", align='C')
-                pdf.cell(63, 6, f"{spec_cap.upper()}", align='C')
-                pdf.cell(63, 6, f"{spec_weight.upper()}", align='C', ln=True)
-                
-                # --- TRUST BADGES ---
-                pdf.ln(5)
-                pdf.set_font('helvetica', 'B', 10)
-                pdf.set_text_color(255, 255, 255)
-                start_x = 10
-                box_w = 60
-                spacing = 5
-                
-                pdf.set_fill_color(*b_color)
-                pdf.set_xy(start_x, pdf.get_y())
-                if badge1: pdf.cell(box_w, 8, f"{badge1.upper()}", align='C', fill=True)
-                pdf.cell(spacing, 8, "", align='C')
-                if badge2: pdf.cell(box_w, 8, f"{badge2.upper()}", align='C', fill=True)
-                pdf.cell(spacing, 8, "", align='C')
-                if badge3: pdf.cell(box_w, 8, f"{badge3.upper()}", align='C', fill=True, ln=True)
-                pdf.ln(8)
-                
-                # --- COPYWRITING AI ---
-                lines = final_copy_bro.strip().split('\n')
-                for line in lines:
-                    if '|' in line:
-                        judul, deskripsi = line.split('|', 1)
-                        judul_bersih = judul.replace("**", "").replace("*", "").strip().upper()
-                        deskripsi_bersih = deskripsi.replace("**", "").replace("*", "").strip()
-                        
-                        pdf.set_fill_color(*b_color)
-                        pdf.ellipse(10, pdf.get_y() + 2, 3, 3, 'F')
-                        
-                        pdf.set_xy(16, pdf.get_y())
-                        pdf.set_font('helvetica', 'B', 12)
-                        pdf.set_text_color(*b_color)
-                        pdf.cell(0, 6, judul_bersih, ln=True)
-                        
-                        pdf.set_xy(16, pdf.get_y())
-                        pdf.set_font('helvetica', '', 10)
-                        pdf.set_text_color(50, 50, 50)
-                        pdf.multi_cell(0, 5, deskripsi_bersih)
-                        pdf.ln(4)
-                
-                # --- KONTAK WA ---
-                safe_y = max(pdf.get_y() + 8, 245)
-                pdf.set_xy(10, safe_y)
-                pdf.set_font('helvetica', 'B', 12)
-                pdf.set_text_color(20, 20, 20)
-                pdf.cell(50, 6, "HUBUNGI SALES KAMI:", ln=True)
-                
-                pdf.set_font('helvetica', 'B', 16)
-                pdf.set_text_color(*b_color)
-                wa_link = f"https://wa.me/{wa_num}"
-                pdf.cell(50, 8, f"WhatsApp: {wa_num}", link=wa_link, ln=True)
-
-                if logo_path and os.path.exists(logo_path): os.remove(logo_path)
-
-                # --- EXPORT TO PDF & PNG ---
-                out = pdf.output(dest='S')
-                pdf_bytes = bytes(out)
-                
-                doc = fitz.open("pdf", pdf_bytes)
-                page = doc.load_page(0)
-                pix = page.get_pixmap(dpi=300)
-                png_bytes = pix.tobytes("png")
-                
-                st.success("🎉 Brosur Marketing Resolusi Tinggi Siap Didownload!")
-                
-                dl_col1, dl_col2 = st.columns(2)
-                with dl_col1:
-                    st.download_button("⬇️ Download High-Res PDF", data=pdf_bytes, file_name=f"Brosur_{brand_bro}_{model_bro}.pdf", mime="application/pdf", use_container_width=True)
-                with dl_col2:
-                    st.download_button("🖼️ Download Gambar (PNG)", data=png_bytes, file_name=f"Brosur_{brand_bro}_{model_bro}.png", mime="image/png", use_container_width=True)
-
+        
 # ==========================================
 # FOOTER
 # ==========================================
