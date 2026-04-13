@@ -828,7 +828,7 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
     if not os.path.exists(CATALOG_DIR):
         os.makedirs(CATALOG_DIR)
 
-   col_b1, col_b2 = st.columns([1, 1.2])
+    col_b1, col_b2 = st.columns([1, 1.2])
 
     with col_b1:
         st.subheader("1. Visual & Identitas")
@@ -938,12 +938,10 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
                     {scraped_text[:12000]}
                     """
                     
-                    # Eksekusi JSON Model
                     import json
                     model_bro_ai = genai.GenerativeModel('gemini-flash-latest', generation_config={"response_mime_type": "application/json"})
                     res_bro = model_bro_ai.generate_content(prompt)
                     
-                    # Parsing JSON dan Menyuntikkan data ke Form Kiri
                     ai_data = json.loads(res_bro.text)
                     
                     st.session_state['bro_model'] = ai_data.get('tipe_unit', st.session_state['bro_model'])
@@ -952,7 +950,6 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
                     st.session_state['bro_sp2'] = ai_data.get('spec2', st.session_state['bro_sp2'])
                     st.session_state['bro_sp3'] = ai_data.get('spec3', st.session_state['bro_sp3'])
                     
-                    # Opsional: Jika AI mengembalikan badge kosong, kembalikan ke default
                     st.session_state['bro_bg1'] = ai_data.get('badge1', "GARANSI 1 TAHUN") or "GARANSI 1 TAHUN"
                     st.session_state['bro_bg2'] = ai_data.get('badge2', "FREE TRAINING") or "FREE TRAINING"
                     st.session_state['bro_bg3'] = ai_data.get('badge3', "READY STOCK") or "READY STOCK"
@@ -960,13 +957,17 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
                     st.session_state['brochure_ai_result'] = ai_data.get('copywriting', "DATA GAGAL DIEKSTRAK | Coba lagi.")
                     
                     st.toast("✅ Ekstraksi berhasil! Form otomatis terisi.")
-                    st.rerun() # Refresh tampilan agar kotak kiri langsung terupdate!
+                    st.rerun() 
                     
                 except Exception as e:
                     st.error(f"Gagal mengekstrak data JSON: {e}")
 
         ai_raw_text = st.session_state.get('brochure_ai_result', "JUDUL FITUR 1 | Penjelasan fitur yang menjual.\nJUDUL FITUR 2 | Penjelasan efisiensi alat.")
-        final_copy_bro = st.text_area("Hasil Copywriting (Bisa Diedit Sebelum Render):", ai_raw_text, height=150)                    
+        final_copy_bro = st.text_area("Hasil Copywriting (Bisa Diedit Sebelum Render):", ai_raw_text, height=150)
+
+    st.markdown("---")
+
+    if st.)                    
 # ==========================================
 # FOOTER
 # ==========================================
