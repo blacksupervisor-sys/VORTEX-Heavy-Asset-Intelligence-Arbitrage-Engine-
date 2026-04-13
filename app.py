@@ -967,7 +967,7 @@ with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=F
 
     st.markdown("---")
 
-    if st.)                    
+    if st.button("🌟 GENERATE ULTIMATE BROCHURE (PDF & PNG)", type="primary", use_container_width=True):                    
 # ==========================================
 # FOOTER
 # ==========================================
