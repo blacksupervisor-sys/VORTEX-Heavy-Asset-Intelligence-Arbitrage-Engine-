@@ -7,6 +7,9 @@ import datetime
 import io
 import docx
 import os
+import requests
+import base64
+from fpdf import FPDF
 
 # ==========================================
 # KONFIGURASI HALAMAN & STATE MANAGEMENT
@@ -21,17 +24,75 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# SETUP API KEYS
 try:
     api_key = st.secrets["GEMINI_API_KEY"]
+    REMOVE_BG_API_KEY = st.secrets.get("REMOVE_BG_API_KEY", "")
     genai.configure(api_key=api_key)
 except KeyError:
     st.error("⚠️ GEMINI_API_KEY tidak ditemukan di Secrets!")
     st.stop()
 
+# INITIALIZE SESSION STATE
 if "intelligence_data" not in st.session_state: st.session_state.intelligence_data = ""
 if "campaign_data" not in st.session_state: st.session_state.campaign_data = None
 if "project_scenario" not in st.session_state: st.session_state.project_scenario = ""
 if "current_weather" not in st.session_state: st.session_state.current_weather = ""
+
+# ==========================================
+# FUNGSI PDF UNTUK PHOTONIS (MODUL 11)
+# ==========================================
+class VISUAL_PDF(FPDF):
+    def __init__(self, logo_image=None, brand_name="", product_image=None):
+        super().__init__()
+        self.logo_image = logo_image
+        self.brand_name = brand_name
+        self.product_image = product_image
+
+    def header(self):
+        if self.logo_image:
+            img_buf = io.BytesIO()
+            self.logo_image.save(img_buf, format='PNG')
+            img_buf.seek(0)
+            self.image(img_buf, 10, 8, 30)
+            self.set_x(45)
+        
+        self.set_font('helvetica', 'B', 15)
+        self.cell(0, 10, self.brand_name, border=False, ln=True, align='L')
+        self.set_font('helvetica', 'I', 8)
+        self.set_x(45) if self.logo_image else None
+        self.cell(0, 5, f"Verified Technical Report | {datetime.date.today()}", ln=True)
+        self.line(10, 40, 200, 40)
+        self.ln(15)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font('helvetica', 'I', 8)
+        self.cell(0, 10, f"Developed by Adjie Agung - VORTEX Engine", align='C')
+
+def create_visual_pdf(text, logo, brand, product_bytes):
+    pdf = VISUAL_PDF(logo_image=logo, brand_name=brand)
+    pdf.add_page()
+    
+    if product_bytes:
+        prod_img = Image.open(io.BytesIO(product_bytes))
+        prod_buf = io.BytesIO()
+        prod_img.save(prod_buf, format='PNG')
+        prod_buf.seek(0)
+        pdf.image(prod_buf, x=55, y=45, w=100)
+        pdf.ln(85) 
+
+    clean_text = text.replace('**', '').replace('*', '').replace('#', '').replace('---', '')
+    pdf.set_font("helvetica", size=11)
+    pdf.set_text_color(40, 40, 40) 
+    normalized_text = clean_text.encode('latin-1', 'ignore').decode('latin-1')
+    
+    for line in normalized_text.split('\n'):
+        stripped_line = line.strip()
+        if stripped_line:
+            pdf.multi_cell(0, 7, stripped_line)
+            pdf.ln(1)
+    return pdf.output()
 
 # ==========================================
 # SIDEBAR
@@ -39,7 +100,7 @@ if "current_weather" not in st.session_state: st.session_state.current_weather =
 with st.sidebar:
     st.image("https://img.icons8.com/color/96/000000/engineering.png", width=70)
     st.title("⚙️ Command Center")
-    st.success("Model: gemini-flash-latest")
+    st.success("Model: gemini-1.5-flash")
     st.info("Library: AIMIX, Tatsuo, New Timehope")
     st.divider()
     wa_num = st.text_input("WhatsApp Sales", "+6281230857759")
@@ -67,7 +128,7 @@ with st.expander("📡 Modul 1: Radar Intelijen (Cuaca & Tender)", expanded=Fals
         cakupan_radar = st.selectbox("Wilayah", ["Kalimantan Timur & IKN", "Seluruh Kalimantan", "Maluku & Indonesia Timur"])
         if st.button("🛰️ Scan Tender", use_container_width=True):
             with st.spinner(f"Memindai LPSE di {cakupan_radar}..."):
-                model_radar = genai.GenerativeModel('gemini-flash-latest')
+                model_radar = genai.GenerativeModel('gemini-1.5-flash')
                 res = model_radar.generate_content(f"Cari info tren proyek infrastruktur, tambang di {cakupan_radar} bulan ini.")
                 st.session_state.project_scenario = res.text
             st.toast("Radar Tender Berhasil!")
@@ -83,7 +144,7 @@ with st.expander("🎯 Modul 2: Ekstraksi Spek & Analisis", expanded=False):
         brand = st.selectbox("Merek Produk", ["AIMIX", "Tatsuo", "New Timehope"])
         unit_type = st.text_input("Tipe Unit", "HSPD 360" if brand == "New Timehope" else "Self Loading Mixer + ABT60C")
     with col_u2:
-        uploaded_file = st.file_uploader("Upload Brosur", type=["pdf", "png", "jpg", "jpeg"])
+        uploaded_file = st.file_uploader("Upload Brosur", type=["pdf", "png", "jpg", "jpeg"], key="brosur_m2")
         
     pdf_text = ""
     image_data = None
@@ -99,7 +160,7 @@ with st.expander("🎯 Modul 2: Ekstraksi Spek & Analisis", expanded=False):
             st.toast("🖼️ Gambar Dibaca!")
         
     if st.button("🔍 Analisis Sudut Serang", use_container_width=True, type="primary"):
-        model_intel = genai.GenerativeModel('gemini-flash-latest')
+        model_intel = genai.GenerativeModel('gemini-1.5-flash')
         intel_prompt = f"Analisis marketing untuk {brand} {unit_type}. Kondisi: {final_scenario}. Spek: {pdf_text}. Buat: 1. Pain Points, 2. Solusi Teknis, 3. Killer Angle."
         contents = [intel_prompt]
         if image_data: contents.append(image_data)
@@ -119,7 +180,7 @@ with st.expander("🏭 Modul 3: Pabrik Konten & Publishing", expanded=False):
         if not st.session_state.intelligence_data:
             st.warning("Jalankan Modul 2 dulu!")
         else:
-            model_factory = genai.GenerativeModel('gemini-flash-latest', generation_config={"response_mime_type": "application/json"})
+            model_factory = genai.GenerativeModel('gemini-1.5-flash', generation_config={"response_mime_type": "application/json"})
             factory_prompt = f"Data: {st.session_state.intelligence_data}. Buat kampanye {brand} {unit_type}. JSON strict: {{'copywriting': 'teks', 'veo_prompts': [{{'scene': 1, 'visual': 'prompt', 'vo': 'suara', 'sfx': 'efek'}}]}}"
             with st.spinner("Memproduksi JSON..."):
                 res_json = model_factory.generate_content(factory_prompt)
@@ -142,20 +203,18 @@ with st.expander("🏭 Modul 3: Pabrik Konten & Publishing", expanded=False):
 with st.expander("💬 Modul 4: AI Comment Sniper", expanded=False):
     komen = st.text_area("Paste Komentar Prospek/Haters:")
     if st.button("🎯 Tembak Balasan", use_container_width=True):
-        model_sniper = genai.GenerativeModel('gemini-flash-latest')
+        model_sniper = genai.GenerativeModel('gemini-1.5-flash')
         with st.spinner("Meracik balasan..."):
             st.success(model_sniper.generate_content(f"Balas komentar: '{komen}' untuk {brand} {unit_type}. Deteksi Hot Lead/Skeptis/Troll, patahkan argumennya.").text)
 
 # ==========================================
-# MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD (UNIFIED)
+# MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD 
 # ==========================================
-with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=True):
+with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=False):
     st.markdown("### 📊 Analisis Finansial & Teknis Terpadu")
     
-    # Semua fitur dilebur ke dalam 4 Tab yang rapi
     tab1, tab2, tab3, tab4 = st.tabs(["🧮 Kalkulator ROI", "🧪 Formula Material", "⚡ Efisiensi Waktu", "📄 ROI Proposal"])
 
-    # --- TAB 1: KALKULATOR ROI (KREDIT) ---
     with tab1:
         c_roi1, c_roi2 = st.columns(2)
         with c_roi1:
@@ -184,7 +243,6 @@ with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=
         r2.metric("Nett Cashflow", f"Rp {sisa_cash:,.0f}")
         r3.metric("Payback Period", f"{pb_period:.1f} Bulan")
 
-    # --- TAB 2: FORMULA SNI & BIAYA MATERIAL ---
     with tab2:
         db_sni = {
             "K-100": {"s": 230, "p": 893, "k": 1027}, "K-125": {"s": 276, "p": 828, "k": 1012},
@@ -206,17 +264,14 @@ with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=
             p_koral = st.number_input("Harga Koral (per m3):", value=350000, key="p_koral")
             ops_tambahan = st.number_input("Biaya Ops (Solar/Tukang) / m3:", value=75000, key="p_ops")
 
-        # Kalkulasi Material (Konversi Kg ke Sak/Volume)
         f = db_sni[mutu]
         sak_semen_req = f['s'] / 50
         pasir_m3_req = f['p'] / 1400
         koral_m3_req = f['k'] / 1350
         
-        # Biaya per m3
         total_cost_m3 = (sak_semen_req * p_semen) + (pasir_m3_req * p_pasir) + (koral_m3_req * p_koral) + ops_tambahan
         margin_saving = harga_readymix_pasar - total_cost_m3
         
-        # Total Proyek
         tot_semen = sak_semen_req * total_vol_proyek
         tot_pasir = pasir_m3_req * total_vol_proyek
         tot_koral = koral_m3_req * total_vol_proyek
@@ -232,7 +287,6 @@ with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=
         c_res2.metric("Biaya Mandiri / m3", f"Rp {total_cost_m3:,.0f}")
         c_res2.metric("Hemat vs Ready Mix", f"Rp {margin_saving:,.0f} /m3", delta=f"{ (margin_saving/harga_readymix_pasar)*100:.1f}% Lebih Murah")
 
-    # --- TAB 3: PERBANDINGAN KECEPATAN ---
     with tab3:
         col_v1, col_v2 = st.columns(2)
         with col_v1:
@@ -248,10 +302,8 @@ with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=
         st.divider()
         st.subheader(f"⚡ Efisiensi: {output_aimix/output_manual:.1f}x Lebih Cepat!")
 
-    # --- TAB 4: PROPOSAL GENERATOR ---
     with tab4:
         st.markdown("### 📄 Draf Proposal ROI Otomatis")
-        st.info("Seluruh data dari tab kalkulasi telah dirangkum dalam proposal ini siap kirim.")
         
         proposal_text = f"""*PROPOSAL ANALISIS INVESTASI & EFISIENSI BETON*
 *Target Unit:* Aimix Self-Loading Concrete Mixer
@@ -278,19 +330,14 @@ with st.expander("💎 MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=
 - Payback Period: {pb_period:.1f} Bulan
 - *Total Saving Proyek Saat Ini:* Rp {margin_saving * total_vol_proyek:,.0f}
 
-*Kesimpulan Akhir:* Hanya dari margin penghematan material proyek ini, unit diproyeksikan mampu menutup biaya investasinya sendiri dan memberikan surplus cashflow.
-
 ---------------------------
 *Diajukan oleh: Adjie Agung (VORTEX Executive Sales)*"""
         
         st.code(proposal_text, language="markdown")
-        
-        # Format teks untuk WhatsApp (replace spasi dan enter agar link tidak putus)
         wa_text = proposal_text.replace('*', '').replace(' ', '%20').replace(chr(10), '%0A')
         wa_proposal = f"https://api.whatsapp.com/send?text={wa_text}"
-        
         st.markdown(f'<a href="{wa_proposal}" target="_blank" style="display: block; text-align: center; background-color: #25d366; color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold;">📲 Kirim Proposal via WhatsApp</a>', unsafe_allow_html=True)
-        
+
 # ==========================================
 # MODUL 6 & 7: KOMPETITOR & UPSELL
 # ==========================================
@@ -298,26 +345,26 @@ with st.expander("⚔️ Modul 6 & 7: Kill-Switch & Upsell", expanded=False):
     st.markdown("**Kompetitor Kill-Switch**")
     kom_brand = st.text_input("Merek Lawan")
     if st.button("☠️ Generate Battlecard", use_container_width=True):
-        st.success(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Bandingkan {brand} vs {kom_brand}. Beri kelemahan lawan dan cara kita menang.").text)
+        st.success(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Bandingkan {brand} vs {kom_brand}. Beri kelemahan lawan dan cara kita menang.").text)
     
     st.divider()
     st.markdown("**Upsell Predictor**")
-    nama_klien = st.text_input("Klien", "PT. Tambang Maju")
+    nama_klien_upsell = st.text_input("Klien", "PT. Tambang Maju", key="upsell_klien")
     tgl_beli = st.date_input("Tgl Beli", datetime.date(2026, 1, 1))
     if st.button("🔮 Prediksi Maintenance", use_container_width=True):
         hari_op = (datetime.date.today() - tgl_beli).days
-        st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Alat {brand} jalan {hari_op*10} jam. Apa yang harus diganti? Buat WA Upsell.").text)
+        st.info(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Alat {brand} jalan {hari_op*10} jam. Apa yang harus diganti? Buat WA Upsell.").text)
 
 # ==========================================
 # MODUL 8: TENDER HACKER
 # ==========================================
 with st.expander("🏛️ Modul 8: LPSE Tender Hacker", expanded=False):
-    tender_file = st.file_uploader("Upload RKS (PDF)", type=["pdf"])
+    tender_file = st.file_uploader("Upload RKS (PDF)", type=["pdf"], key="tender_up")
     if st.button("🕵️‍♂️ Retas Dokumen", use_container_width=True):
         if tender_file:
             tdr_txt = "".join([PyPDF2.PdfReader(tender_file).pages[i].extract_text() for i in range(min(len(PyPDF2.PdfReader(tender_file).pages), 40))])
             with st.spinner("Membedah tender..."):
-                st.success(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Ekstrak syarat alat dari teks ini: {tdr_txt[:15000]}. Buktikan {brand} memenuhi syarat.").text)
+                st.success(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Ekstrak syarat alat dari teks ini: {tdr_txt[:15000]}. Buktikan {brand} memenuhi syarat.").text)
 
 # ==========================================
 # MODUL 9: CRM MEMORY
@@ -335,12 +382,12 @@ with st.expander("📊 Modul 9: CRM Memory & Report", expanded=False):
 
     t1, t2 = st.tabs(["📝 Input Harian", "📈 Tarik Laporan"])
     with t1:
-        tgl_harian = st.date_input("Tanggal", datetime.date.today())
-        raw_notes = st.text_area("Catatan:", height=100)
+        tgl_harian = st.date_input("Tanggal", datetime.date.today(), key="crm_tgl")
+        raw_notes = st.text_area("Catatan:", height=100, key="crm_notes")
         if st.button("Simpan & Buat Laporan"):
             if raw_notes:
                 save_memory(str(tgl_harian), raw_notes)
-                res_daily = genai.GenerativeModel('gemini-flash-latest').generate_content(f"Rapikan jadi laporan sales: {raw_notes}")
+                res_daily = genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Rapikan jadi laporan sales: {raw_notes}")
                 st.info(res_daily.text)
                 
                 doc_d = docx.Document()
@@ -356,172 +403,163 @@ with st.expander("📊 Modul 9: CRM Memory & Report", expanded=False):
         if st.button("Generate Laporan Panjang"):
             if memori:
                 big_data = "\n".join([f"{i['tanggal']}: {i['catatan']}" for i in memori])
-                res_annual = genai.GenerativeModel('gemini-flash-latest').generate_content(f"Buat Laporan Eksekutif dari riwayat ini:\n{big_data}")
+                res_annual = genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Buat Laporan Eksekutif dari riwayat ini:\n{big_data}")
                 st.success(res_annual.text)
 
 # ==========================================
 # MODUL 10: EXPAT NEGOTIATOR
 # ==========================================
 with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
-    teks_indo = st.text_area("Teks (Indonesia):", placeholder="Contoh: Pak, ROI mesin ini hanya 2 bulan...")
-    bahasa_target = st.selectbox("Terjemahkan ke:", ["Mandarin (Simplified - Tiongkok)", "Inggris (Business)", "Korea (Corporate)"])
+    teks_indo = st.text_area("Teks (Indonesia):", placeholder="Contoh: Pak, ROI mesin ini hanya 2 bulan...", key="expat_text")
+    bahasa_target = st.selectbox("Terjemahkan ke:", ["Mandarin (Simplified - Tiongkok)", "Inggris (Business)", "Korea (Corporate)"], key="expat_lang")
     if st.button("🔠 Terjemahkan", use_container_width=True):
         if teks_indo:
-            st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
+            st.info(genai.GenerativeModel('gemini-1.5-flash').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
 
 # ==========================================
-# MODUL 9: PHOTONIS VISUALIZER & AUTO-BROCHURE ENGINE
+# MODUL 11: PHOTONIS VISUALIZER & AUTO-BROCHURE ENGINE
 # ==========================================
-with st.expander("📸 MODUL 9: Photonis Visualizer & Auto-Brochure", expanded=True):
-    st.markdown("### 🛠️ Product Intelligence & Sales Kit Generator")
+with st.expander("📸 MODUL 11: AI Photonis & Auto-Brochure", expanded=True):
+    st.markdown("### 🤖 AI Product Intelligence & Brosur Instan")
     
-    tab_foto, tab_brosur = st.tabs(["🔍 Photonis Analyzer", "📑 Mesin Pembuat Brosur"])
+    tab_foto, tab_brosur = st.tabs(["🔍 Photonis AI Analyzer", "📑 Auto-Sales Kit Generator"])
 
-    # --- TAB 1: PHOTONIS ANALYZER (Spesifikasi Visual & Teknis) ---
     with tab_foto:
-        st.info("Pilih unit untuk menampilkan analisis teknis dan keunggulan visual di depan klien.")
+        st.info("Upload foto unit lapangan, hapus background, dan biarkan AI membuat brosur teknis PDF.")
         
-        col_foto1, col_foto2 = st.columns([1, 2])
-        with col_foto1:
-            unit_pilihan = st.selectbox("Pilih Unit (Photonis):", [
-                "Aimix Self-Loading AS-3.5",
-                "Aimix Self-Loading AS-4.0",
-                "Tatsuo Excavator TX-200",
-                "ABJZ Concrete Pump"
-            ], key="foto_unit")
+        c_id1, c_id2 = st.columns(2)
+        with c_id1:
+            user_brand = st.text_input("Nama Brand Katalog:", "AZARINDO (Tatsuo & Aimix)")
+        with c_id2:
+            user_logo = st.file_uploader("Upload Logo Brand (Opsional)", type=['png', 'jpg'], key="logo_up")
+
+        uploaded_foto = st.file_uploader("📷 Upload Foto Unit", type=['jpg', 'png', 'jpeg'], key="foto_up")
+
+        if uploaded_foto:
+            file_bytes_foto = uploaded_foto.read()
+            col_img, col_ai = st.columns([1, 1])
             
-        with col_foto2:
-            st.markdown(f"**🔥 Keunggulan Utama {unit_pilihan}:**")
-            if "Aimix" in unit_pilihan:
-                st.write("✔️ **4-in-1 System:** Muat, Aduk, Pindah, Tuang dalam satu unit.")
-                st.write("✔️ **Drum Putar 270°:** Pengecoran fleksibel di area sempit.")
-                st.write("✔️ **Kamera 360°:** Keamanan manuver di lokasi proyek.")
-            elif "Tatsuo" in unit_pilihan:
-                st.write("✔️ **Isuzu Engine:** Irit bahan bakar dan tangguh.")
-                st.write("✔️ **Reinforced Boom:** Tahan terhadap material keras.")
-                st.write("✔️ **Cabin AC & Ergonomic:** Operator tidak cepat lelah.")
-            elif "ABJZ" in unit_pilihan:
-                st.write("✔️ **Jarak Pompa Vertikal:** Mampu memompa hingga lantai 10.")
-                st.write("✔️ **Sistem Hidrolik Stabil:** Aliran beton lancar anti-mampet.")
+            with col_img:
+                st.image(file_bytes_foto, caption="Original Asset", use_column_width="always")
+                
+                if not REMOVE_BG_API_KEY:
+                    st.warning("⚠️ API Key Remove.bg belum disetting di Streamlit Secrets.")
+                else:
+                    if st.button("✨ Hapus Background", key="btn_rmbg"):
+                        with st.spinner("Processing visual..."):
+                            response = requests.post(
+                                'https://api.remove.bg/v1.0/removebg',
+                                files={'image_file': file_bytes_foto},
+                                data={'size': 'auto'},
+                                headers={'X-Api-Key': REMOVE_BG_API_KEY},
+                            )
+                            if response.status_code == requests.codes.ok:
+                                st.session_state['fotonis_clean_img'] = response.content
+                                st.rerun()
 
-        st.divider()
-        st.markdown("**⚙️ Spesifikasi Teknis Cepat (Untuk Pengawas Lapangan)**")
-        # Simulasi database teknis
-        if "AS-3.5" in unit_pilihan:
-            spek = {"Kapasitas Drum": "5.300 Liter", "Output per Batch": "3.5 m3", "Mesin": "Yuchai 85 kW", "Sistem Penggerak": "4x4 Wheel Drive"}
-        elif "AS-4.0" in unit_pilihan:
-            spek = {"Kapasitas Drum": "6.100 Liter", "Output per Batch": "4.0 m3", "Mesin": "Yuchai 92 kW", "Sistem Penggerak": "4x4 Wheel Drive"}
-        else:
-            spek = {"Kapasitas": "Menyesuaikan", "Tipe Mesin": "Heavy Duty", "Sistem": "Hydraulic Main Pump"}
-        
-        # Menampilkan spesifikasi dalam grid
-        cols = st.columns(len(spek))
-        for i, (kunci, nilai) in enumerate(spek.items()):
-            cols[i].metric(label=kunci, value=nilai)
+            with col_ai:
+                if 'fotonis_clean_img' in st.session_state:
+                    st.image(st.session_state['fotonis_clean_img'], caption="Asset Siap Katalog", use_column_width="always")
+                    
+                    if st.button("🧠 Jalankan Analisa AI", key="btn_ai"):
+                        with st.spinner("Gemini Menganalisa Visual..."):
+                            try:
+                                model_p = genai.GenerativeModel('gemini-1.5-flash')
+                                img_pil = Image.open(io.BytesIO(st.session_state['fotonis_clean_img']))
+                                prompt_ai = "Berikan spesifikasi teknis mendalam dan copywriting marketing metode AIDA untuk unit ini."
+                                res_p = model_p.generate_content([prompt_ai, img_pil])
+                                st.session_state['fotonis_draft_text'] = res_p.text
+                            except Exception as e:
+                                st.error(f"Gagal memproses AI: {e}")
 
-    # --- TAB 2: MESIN BROSUR / AUTO-SALES KIT ---
+            if 'fotonis_draft_text' in st.session_state:
+                st.divider()
+                st.markdown("#### 📝 Verifikasi Spesifikasi & Katalog PDF")
+                final_text = st.text_area("Edit hasil AI:", value=st.session_state['fotonis_draft_text'], height=300)
+                
+                c_pdf1, c_pdf2 = st.columns(2)
+                with c_pdf1:
+                    logo_img_doc = Image.open(user_logo) if user_logo else None
+                    pdf_data = create_visual_pdf(final_text, logo_img_doc, user_brand, st.session_state.get('fotonis_clean_img'))
+                    st.download_button(
+                        label="📥 Download Katalog PDF",
+                        data=bytes(pdf_data),
+                        file_name=f"Katalog_{user_brand.replace(' ', '_')}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True
+                    )
+                with c_pdf2:
+                    if st.button("🗑️ Reset Gambar"):
+                        del st.session_state['fotonis_clean_img']
+                        del st.session_state['fotonis_draft_text']
+                        st.rerun()
+
     with tab_brosur:
-        st.markdown("### 🖨️ Generator Penawaran & Spesifikasi Instan")
-        st.write("Masukkan nama klien untuk mencetak *Sales Kit* personal.")
+        st.markdown("### 🖨️ Mesin Penawaran Cepat")
         
         c_bro1, c_bro2 = st.columns(2)
         with c_bro1:
-            nama_klien = st.text_input("Nama Klien / Perusahaan:", value="PT. Bangun Nusantara", key="bro_klien")
+            nama_klien_brosur = st.text_input("Nama Klien:", value="PT. Bangun Nusantara", key="bro_klien")
             lokasi_proyek = st.text_input("Lokasi Proyek:", value="Kalimantan Timur", key="bro_lokasi")
         with c_bro2:
-            unit_brosur = st.selectbox("Unit yang Ditawarkan:", [
-                "Aimix Self-Loading AS-3.5",
-                "Aimix Self-Loading AS-4.0",
-                "Tatsuo Excavator TX-200"
-            ], key="bro_unit")
-            harga_penawaran = st.number_input("Harga Penawaran (Rp):", value=850000000, key="bro_harga")
+            unit_brosur = st.selectbox("Unit yang Ditawarkan:", ["Aimix Self-Loading AS-3.5", "Aimix Self-Loading AS-4.0", "Tatsuo Excavator TX-200"], key="bro_unit")
+            harga_penawaran = st.number_input("Harga Penawaran (Rp):", value=850000000, step=10000000, key="bro_harga")
 
-        st.divider()
-        
-        # Format Brosur Penawaran
         teks_brosur = f"""=========================================
 OFFICIAL SALES KIT & TECHNICAL PROPOSAL
 =========================================
-Kepada Yth: Pimpinan {nama_klien}
+Kepada Yth: Pimpinan {nama_klien_brosur}
 Lokasi Proyek: {lokasi_proyek}
 
-Merespon kebutuhan percepatan infrastruktur di proyek Bapak/Ibu, kami dari Azarindo merekomendasikan unit operasional dengan spesifikasi sebagai berikut:
-
+Merespon kebutuhan infrastruktur di proyek Bapak/Ibu, kami merekomendasikan:
 ▶ UNIT: {unit_brosur}
-▶ HARGA SPESIAL: Rp {harga_penawaran:,.0f}
+▶ HARGA INVESTASI: Rp {harga_penawaran:,.0f}
 
-KEUNGGULAN INVESTASI UNIT INI:
-1. Efisiensi Waktu: Mempercepat produksi beton/material hingga 3x lipat dibanding metode konvensional.
-2. Hemat SDM: Cukup dioperasikan oleh 1-2 orang, memangkas biaya harian tukang.
-3. Kualitas Presisi: Mutu material terjaga karena ditakar dan diaduk oleh sistem mesin langsung di lapangan.
+KEUNGGULAN INVESTASI:
+1. Efisiensi Waktu: Mempercepat produksi hingga 3x lipat.
+2. Hemat SDM: Memangkas biaya upah tukang.
+3. Kualitas Presisi: Mutu hasil kerja lebih terjaga.
 
-[Telah dilampirkan: Garansi Mesin 1 Tahun & Free Training Operator]
-
-Untuk diskusi lebih lanjut mengenai skema pembayaran (Cash/Kredit), silakan hubungi kami.
+[Lampiran: Garansi Mesin 1 Tahun & Free Training Operator]
+Hubungi kami untuk skema pembayaran terbaik.
 
 Hormat kami,
-Adjie Agung
-Heavy Asset Specialist - Azarindo
+Adjie Agung - Heavy Asset Specialist
 ========================================="""
 
-        st.text_area("Preview Brosur (Bisa langsung di-copy ke WA/Email):", value=teks_brosur, height=350)
+        st.text_area("Preview Surat Penawaran:", value=teks_brosur, height=300)
         
-        # Tombol Download sebagai file .TXT
-        st.download_button(
-            label="📄 Download Sales Kit (.txt)",
-            data=teks_brosur,
-            file_name=f"Penawaran_{nama_klien.replace(' ', '_')}.txt",
-            mime="text/plain",
-            use_container_width=True
-        )
-        
-# ==========================================
-# MODUL 11: ELITE DIGITAL CARD (PERFECT BALANCE EDITION)
-# ==========================================
-import base64 
+        col_dl1, col_dl2 = st.columns(2)
+        with col_dl1:
+            st.download_button("📄 Download Sales Kit (.txt)", data=teks_brosur, file_name=f"Penawaran_{nama_klien_brosur.replace(' ', '_')}.txt", mime="text/plain", use_container_width=True)
+        with col_dl2:
+            wa_text_bro = teks_brosur.replace(' ', '%20').replace(chr(10), '%0A')
+            st.markdown(f'<a href="https://api.whatsapp.com/send?text={wa_text_bro}" target="_blank" style="display: block; text-align: center; background-color: #25d366; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;">📲 Kirim via WA</a>', unsafe_allow_html=True)
 
-with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expanded=True):
-    st.markdown("*screenshot*")
-    st.divider()
-
-    # --- BAGIAN 1: PENGATURAN KUSTOMISASI ---
+# ==========================================
+# MODUL 12: ELITE DIGITAL CARD 
+# ==========================================
+with st.expander("📇 Modul 12: Elite Digital Card (Dual-Core Design)", expanded=False):
     st.markdown("**🛠️ Pengaturan Tampilan Kartu**")
-    card_choice = st.radio(
-        "Pilih Fokus Desain Kartu Anda:",
-        [
-            "Dual-Focus (Tatsuo & Aimix)",
-            "Single-Focus (Satu Produk Khusus)"
-        ],
-        horizontal=True
-    )
+    card_choice = st.radio("Fokus Desain Kartu:", ["Dual-Focus (Tatsuo & Aimix)", "Single-Focus (Satu Produk)"], horizontal=True)
 
-    # PERBAIKAN 1: Pilihan Merek Khusus Modul 11 (Anti-Stuck)
     single_brand = None
-    if card_choice == "Single-Focus (Satu Produk Khusus)":
-        single_brand = st.selectbox("🎯 Pilih Merek yang ingin ditonjolkan di kartu:", ["Tatsuo", "AIMIX", "New Timehope"])
+    if card_choice == "Single-Focus (Satu Produk)":
+        single_brand = st.selectbox("🎯 Pilih Merek:", ["Tatsuo", "AIMIX", "New Timehope"])
 
-    st.divider()
-
-    # Drag & Drop Background
-    st.markdown("**🖼️ Drag & Drop Background**")
-    st.caption("Fokus Dual: input Tatsuo & Aimix . Fokus Single: input 1 visual.")
     bg_uploads = st.file_uploader("Upload gambar (PNG/JPG):", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
-    # --- BAGIAN 2: DATA & LOGIKA DINAMIS ---
     url_azarindo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AZARINDO.png"
     url_tatsuo = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TATSUO.png" 
     url_aimix = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/AIMIX.png"
     url_timehope = "https://raw.githubusercontent.com/blacksupervisor-sys/VORTEX-Heavy-Asset-Intelligence-Arbitrage-Engine-/main/TIMEHOPE.png"
 
     qr_url = f"https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={aff_link}"
-
-    # Logika Penentuan Logo & Warna 
     header_logo_html = ""
     accent_color = ""
 
     if card_choice == "Dual-Focus (Tatsuo & Aimix)":
         accent_color = "#E74C3C" 
-        # PERBAIKAN 2: Proporsi Ukuran (Tatsuo dibuat 18px, Aimix dibesarkan jadi 28px agar sejajar)
         header_logo_html = (
             "<div style='display: flex; justify-content: center; align-items: center; gap: 15px; flex-wrap: wrap; margin-top: 5px;'>"
             f"<img src='{url_tatsuo}' height='18px' alt='Tatsuo Logo'>"
@@ -530,20 +568,16 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
             "</div>"
         )
     else:
-        # Menggunakan pilihan langsung dari Modul 11 (Bukan Modul 2)
         if single_brand == "Tatsuo":
             header_logo_html = f"<img src='{url_tatsuo}' height='28px' style='margin-top: 5px;'>"
             accent_color = "#FFD700" 
         elif single_brand == "AIMIX":
-            # AIMIX single focus dibesarkan signifikan
             header_logo_html = f"<img src='{url_aimix}' height='42px' style='margin-top: 5px;'>"
             accent_color = "#1E90FF" 
         elif single_brand == "New Timehope": 
-            # Timehope single focus
             header_logo_html = f"<img src='{url_timehope}' height='45px' style='margin-top: 5px;'>"
             accent_color = "#C0392B" 
 
-    # Logika Latar Belakang Multiple
     bg_html = ""
     if bg_uploads:
         images_to_use = bg_uploads[:2]
@@ -555,34 +589,24 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
     else:
         bg_html = f"<div style='position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: 0;'><img src='{url_azarindo}' style='width: 350px;'></div>"
 
-    # --- BAGIAN 3: RENDER KARTU NAMA ---
     st.divider()
     st.markdown("**📱 Preview Kartu Nama Digital Anda**")
 
     html_card = (
         f"<div style='position: relative; border: 2px solid {accent_color}; border-radius: 12px; background-color: #ffffff; padding: 25px; box-shadow: 0px 10px 20px rgba(0,0,0,0.05); overflow: hidden; margin-top: 15px;'>"
-        
         f"{bg_html}"
-        
         "<div style='position: relative; z-index: 1;'>"
-        
-        # Header Logo
         "<div style='text-align: center; margin-bottom: 30px;'>"
         f"<img src='{url_azarindo}' height='50px' style='margin-bottom: 5px;' alt='Azarindo Logo'>"
         "<div style='color: #7f8c8d; font-size: 0.7em; margin-top: 5px; margin-bottom: 12px; font-weight: bold; letter-spacing: 1.5px;'>OFFICIAL PARTNER:</div>"
         f"{header_logo_html}"
         "</div>"
-        
         f"<hr style='border: 0; border-top: 2px solid {accent_color}; opacity: 0.2; margin: 20px 0;'>"
-        
-        # Nama & Jabatan (Tengah + Garis)
         "<div style='display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; margin-bottom: 35px;'>"
         "<h1 style='color: #2c3e50; margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 1px;'>ADJIE AGUNG</h1>"
         "<div style='width: 60px; height: 2px; background-color: #e0e0e0; margin: 10px 0;'></div>" 
         f"<p style='color: {accent_color}; margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 2px;'>HEAVY EQUIPMENT SALES</p>"
         "</div>"
-        
-        # Footer Kontak
         "<div style='display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;'>"
         "<div style='flex: 1 1 180px; font-size: 12px; color: #34495e; line-height: 2.0;'>"
         "<div>🌐 <b>Website:</b> <span style='color: #2980b9;'>azarindo.id</span></div>"
@@ -595,43 +619,21 @@ with st.expander("📇 Modul 11: Elite Digital Card (Dual-Core Design)", expande
         "<span style='color: #7f8c8d; font-size: 9px; font-weight: bold; letter-spacing: 0.5px;'>E-STORE SUKU CADANG</span>"
         "</div>"
         "</div>"
-        
         "</div>"
         "</div>"
     )
-    
     st.markdown(html_card, unsafe_allow_html=True)
 
-# ==========================================
-    # ELITE ACTION BAR (WA SHARE & vCARD)
-    # ==========================================
     st.markdown("<br>", unsafe_allow_html=True)
     col_btn1, col_btn2 = st.columns(2)
-    
     with col_btn1:
-        # Teks otomatis untuk WhatsApp
-        pesan_wa = "Selamat pagi/siang Bapak/Ibu. Perkenalkan saya Adjie Agung, Heavy Equipment Specialist dari Azarindo. Berikut saya lampirkan kartu nama digital saya. Jika proyek Anda membutuhkan alat Konstruksi yang efisiensi (Excavator wheel track, Self Loading mixer, Concrete Pump, HSPD), saya siap membantu. Terima kasih."
+        pesan_wa = "Selamat pagi/siang Bapak/Ibu. Perkenalkan saya Adjie Agung, Heavy Equipment Specialist dari Azarindo. Berikut saya lampirkan kartu nama digital saya. Jika proyek Anda membutuhkan alat Konstruksi, saya siap membantu. Terima kasih."
         link_wa = f"https://api.whatsapp.com/send?text={pesan_wa.replace(' ', '%20')}"
         st.markdown(f'<a href="{link_wa}" target="_blank" style="display: block; text-align: center; background-color: #25D366; color: white; padding: 10px; border-radius: 8px; text-decoration: none; font-weight: bold;">💬 Kirim Pengantar WA</a>', unsafe_allow_html=True)
 
     with col_btn2:
-        # Membuat file vCard (Kontak HP Otomatis)
-        vcard_data = f"""BEGIN:VCARD
-VERSION:3.0
-N:Agung;Adjie;;;
-FN:Adjie Agung
-TITLE:Heavy Equipment Sales
-ORG:Azarindo (Tatsuo, AIMIX, Timehope)
-TEL;TYPE=CELL:{wa_num}
-URL:azarindo.id
-END:VCARD"""
-        st.download_button(
-            label="📇 Download File Kontak (vCard)",
-            data=vcard_data,
-            file_name="Adjie_Agung_Azarindo.vcf",
-            mime="text/vcard",
-            use_container_width=True
-        )
+        vcard_data = f"""BEGIN:VCARD\nVERSION:3.0\nN:Agung;Adjie;;;\nFN:Adjie Agung\nTITLE:Heavy Equipment Sales\nORG:Azarindo\nTEL;TYPE=CELL:{wa_num}\nURL:azarindo.id\nEND:VCARD"""
+        st.download_button(label="📇 Download Kontak (vCard)", data=vcard_data, file_name="Adjie_Agung_Azarindo.vcf", mime="text/vcard", use_container_width=True)
     
 # ==========================================
 # FOOTER
