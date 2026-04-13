@@ -6,3 +6,7 @@ requests
 pillow
 python-docx
 fpdf2
+qrcode
+PyMuPDF
+PyPDF2
+beautifulsoup4
