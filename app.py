@@ -11,6 +11,7 @@ import requests
 import base64
 from fpdf import FPDF
 import urllib.parse
+import uuid
 
 # ==========================================
 # FUNGSI PDF UNTUK MARKETING BROCHURE (MODUL 13)
