@@ -13,6 +13,43 @@ from fpdf import FPDF
 import urllib.parse
 
 # ==========================================
+# FUNGSI PDF UNTUK MARKETING BROCHURE (MODUL 13)
+# ==========================================
+class ULTIMATE_BROCHURE(FPDF):
+    def __init__(self, brand_color, brand_name, website_link, logo_path, wa_number):
+        super().__init__()
+        self.brand_color = brand_color
+        self.brand_name = brand_name
+        self.website_link = website_link
+        self.logo_path = logo_path
+        self.wa_number = wa_number
+
+    def header(self):
+        self.set_fill_color(*self.brand_color)
+        self.rect(0, 0, 210, 4, 'F')
+        
+        if self.logo_path and os.path.exists(self.logo_path):
+            self.image(self.logo_path, x=160, y=8, w=40)
+        else:
+            self.ln(5)
+            self.set_font('helvetica', 'B', 24)
+            self.set_text_color(*self.brand_color)
+            self.cell(0, 10, self.brand_name, ln=True, align='R')
+
+    def footer(self):
+        self.set_y(-25)
+        self.set_draw_color(*self.brand_color)
+        self.line(10, 272, 200, 272)
+        
+        self.set_text_color(50, 50, 50)
+        self.set_font('helvetica', 'B', 9)
+        self.cell(0, 6, f'{self.brand_name} - SMART EQUIPMENT FOR SMART BUILDERS', align='C', ln=True)
+        
+        self.set_font('helvetica', 'I', 8)
+        clean_link = self.website_link.replace("https://", "").replace("http://", "").rstrip("/")
+        self.cell(0, 4, f'Authorized Representative: Adjie Agung | {clean_link}', align='C', ln=True)
+        
+# ==========================================
 # KONFIGURASI HALAMAN & STATE MANAGEMENT
 # ==========================================
 st.set_page_config(page_title="VORTEX 4.0 | By Adjie Agung", page_icon="🌪️", layout="centered")
@@ -779,7 +816,259 @@ with st.expander("📇 Modul 12: Elite Digital Card (Dual-Core Design)", expande
     with col_btn2:
         vcard_data = f"""BEGIN:VCARD\nVERSION:3.0\nN:Agung;Adjie;;;\nFN:Adjie Agung\nTITLE:Heavy Equipment Sales\nORG:Azarindo\nTEL;TYPE=CELL:{wa_num}\nURL:azarindo.id\nEND:VCARD"""
         st.download_button(label="📇 Download Kontak (vCard)", data=vcard_data, file_name="Adjie_Agung_Azarindo.vcf", mime="text/vcard", use_container_width=True)
-    
+
+# ==========================================
+# MODUL 13: ULTIMATE MARKETING BROCHURE ENGINE
+# ==========================================
+with st.expander("🚀 MODUL 13: Ultimate Marketing Brochure Engine", expanded=False):
+    st.markdown("### 🌟 Generator Brosur Penjualan Visual (PDF & PNG)")
+    st.write("Gunakan modul ini untuk membuat brosur marketing yang eye-catching, dilengkapi QR Code dan Auto-Layout.")
+
+    CATALOG_DIR = "katalog_tersimpan"
+    if not os.path.exists(CATALOG_DIR):
+        os.makedirs(CATALOG_DIR)
+
+    col_b1, col_b2 = st.columns([1, 1.2])
+
+    with col_b1:
+        st.subheader("1. Visual & Identitas")
+        brand_bro = st.selectbox("Pilih Merek", ["AIMIX", "TATSUO", "NEW TIMEHOPE"], key="brochure_brand")
+        
+        if brand_bro == "AIMIX":
+            default_link = "https://aimix-self-loading-mixer.netlify.app/"
+            default_model = "SELF LOADING MIXER"
+        elif brand_bro == "TATSUO":
+            default_link = "https://tatsuosales-id.netlify.app/#/"
+            default_model = "WHEEL CRAWLER EXCAVATOR JP80-9"
+        else:
+            default_link = "https://azarindo.id/"
+            default_model = "HSPD 360"
+
+        logo_file = st.file_uploader("Upload Logo Brand (PNG Transparan)", type=['png', 'jpg', 'jpeg'], key="bro_logo")
+        foto_bro = st.file_uploader("Upload Foto Unit Utama (Tanpa Background)", type=['png', 'jpg', 'jpeg'], key="bro_foto")
+        
+        st.markdown("---")
+        model_bro = st.text_input("Tipe Unit", default_model, key="bro_model")
+        headline_bro = st.text_input("Headline Utama", "TANGGUH DISEGALA MEDAN", key="bro_headline")
+        
+        st.caption("Highlight Spesifikasi Cepat")
+        c_sp1, c_sp2, c_sp3 = st.columns(3)
+        with c_sp1: spec_engine = st.text_input("Engine / Power", "Yanmar / 82kW", key="bro_sp1")
+        with c_sp2: spec_cap = st.text_input("Sistem Utama", "S-Valve Rexroth", key="bro_sp2")
+        with c_sp3: spec_weight = st.text_input("Kapasitas / Bobot", "40 m3/jam", key="bro_sp3")
+
+        st.caption("Stempel Kepercayaan (Trust Badges)")
+        b_col1, b_col2, b_col3 = st.columns(3)
+        with b_col1: badge1 = st.text_input("Badge 1", "GARANSI 1 TAHUN", key="bro_bg1")
+        with b_col2: badge2 = st.text_input("Badge 2", "FREE TRAINING", key="bro_bg2")
+        with b_col3: badge3 = st.text_input("Badge 3", "READY STOCK", key="bro_bg3")
+
+    with col_b2:
+        st.subheader("2. AI Copywriter & Rendering")
+        ref_link = st.text_input("Link Website Produk (Opsional)", default_link, key="bro_link")
+        
+        st.markdown("**📂 Ekstraksi Spesifikasi**")
+        saved_files = [f for f in os.listdir(CATALOG_DIR) if f.endswith('.pdf')]
+        pilihan_katalog = st.selectbox("Pilih File Referensi", ["-- Upload Katalog Baru --", "Gunakan Data Teks Fotonis (Modul 11)"] + saved_files, key="bro_kat")
+        
+        pdf_path_to_read = None
+        if pilihan_katalog == "-- Upload Katalog Baru --":
+            pdf_ref = st.file_uploader("Upload Katalog Spesifikasi (PDF)", type=['pdf'], key="bro_pdf_up")
+            if pdf_ref:
+                save_path = os.path.join(CATALOG_DIR, pdf_ref.name)
+                with open(save_path, "wb") as f: f.write(pdf_ref.getbuffer())
+                st.success(f"✅ Katalog '{pdf_ref.name}' tersimpan ke memori!")
+                pdf_path_to_read = save_path
+        elif pilihan_katalog != "Gunakan Data Teks Fotonis (Modul 11)":
+            pdf_path_to_read = os.path.join(CATALOG_DIR, pilihan_katalog)
+            st.info(f"⚡ Menggunakan katalog: **{pilihan_katalog}**")
+            
+        if st.button("✨ Tarik Data & Buat Copywriting", use_container_width=True):
+            with st.spinner("AI sedang meracik copywriting jualan..."):
+                try:
+                    scraped_text = ""
+                    # Tarik Data Website
+                    if ref_link:
+                        try:
+                            from bs4 import BeautifulSoup
+                            res = requests.get(ref_link, timeout=10)
+                            soup = BeautifulSoup(res.text, 'html.parser')
+                            scraped_text += "DATA WEBSITE:\n" + soup.get_text(separator=' ', strip=True)[:3000] + "\n\n"
+                        except: pass
+                    # Tarik Data PDF Baru
+                    if pdf_path_to_read:
+                        try:
+                            with open(pdf_path_to_read, "rb") as file_pdf:
+                                pdf_reader = PyPDF2.PdfReader(file_pdf)
+                                for i in range(min(10, len(pdf_reader.pages))):
+                                    ex = pdf_reader.pages[i].extract_text()
+                                    if ex: scraped_text += ex + "\n"
+                        except: pass
+                    # Gunakan data Fotonis jika dipilih
+                    if pilihan_katalog == "Gunakan Data Teks Fotonis (Modul 11)":
+                        scraped_text += st.session_state.get('fotonis_draft_text', "")
+                        
+                    prompt = f"""
+                    Anda adalah Copywriter Alat Berat profesional.
+                    Ekstrak data spesifikasi di bawah ini menjadi 4 poin keunggulan utama yang menjual.
+                    Gunakan bahasa Indonesia yang powerful.
+                    ATURAN FORMAT WAJIB (Gunakan pemisah tanda | antara judul dan deskripsi. Jangan gunakan Markdown/bintang):
+                    JUDUL FITUR 1 | Deskripsi maksimal 2 kalimat.
+                    JUDUL FITUR 2 | Deskripsi maksimal 2 kalimat.
+                    Data spesifikasi:
+                    {scraped_text[:12000]}
+                    """
+                    model_bro_ai = genai.GenerativeModel('gemini-flash-latest')
+                    res_bro = model_bro_ai.generate_content(prompt)
+                    st.session_state['brochure_ai_result'] = res_bro.text
+                    st.success("Teks jualan berhasil dibuat!")
+                except Exception as e:
+                    st.error(f"Gagal memanggil AI: {e}")
+
+        ai_raw_text = st.session_state.get('brochure_ai_result', "JUDUL FITUR 1 | Penjelasan fitur yang menjual.\nJUDUL FITUR 2 | Penjelasan efisiensi alat.")
+        final_copy_bro = st.text_area("Hasil Copywriting (Bisa Diedit):", ai_raw_text, height=150)
+
+    st.markdown("---")
+
+    if st.button("🌟 GENERATE ULTIMATE BROCHURE (PDF & PNG)", type="primary", use_container_width=True):
+        if not foto_bro:
+            st.warning("⚠️ Mohon upload foto unit (di kolom kiri) terlebih dahulu.")
+        else:
+            with st.spinner("Merender Brosur Resolusi Tinggi..."):
+                import fitz
+                import qrcode
+                
+                # Setup Warna Tema
+                if brand_bro == "AIMIX": b_color = (31, 73, 125)
+                elif brand_bro == "TATSUO": b_color = (204, 0, 0)
+                else: b_color = (46, 204, 113)
+                
+                logo_path = None
+                if logo_file:
+                    logo_path = f"temp_logo_{uuid.uuid4()}.png"
+                    with open(logo_path, "wb") as f: f.write(logo_file.getbuffer())
+                
+                pdf = ULTIMATE_BROCHURE(brand_color=b_color, brand_name=brand_bro, website_link=ref_link, logo_path=logo_path, wa_number=wa_num)
+                pdf.add_page()
+                
+                # --- WATERMARK ---
+                if logo_path and os.path.exists(logo_path):
+                    try:
+                        wm_path = f"wm_{uuid.uuid4()}.png"
+                        img = Image.open(logo_path).convert("RGBA")
+                        alpha = img.split()[3]
+                        alpha = alpha.point(lambda p: p * 0.1)
+                        img.putalpha(alpha)
+                        img.save(wm_path, "PNG")
+                        pdf.image(wm_path, x=35, y=90, w=140)
+                        os.remove(wm_path)
+                    except: pass 
+
+                # --- QR CODE ---
+                if ref_link:
+                    qr = qrcode.make(ref_link)
+                    qr_path = f"qr_{uuid.uuid4()}.png"
+                    qr.save(qr_path)
+                    pdf.image(qr_path, x=15, y=8, w=24, h=24)
+                    pdf.set_xy(11, 33)
+                    pdf.set_font('helvetica', 'B', 6)
+                    pdf.set_text_color(*b_color)
+                    pdf.cell(32, 3, "SCAN FOR DETAILS", align='C')
+                    if os.path.exists(qr_path): os.remove(qr_path)
+                
+                # --- GAMBAR UTAMA ---
+                img_path = f"temp_hero_{uuid.uuid4()}.png"
+                with open(img_path, "wb") as f: f.write(foto_bro.getbuffer())
+                pdf.image(img_path, x=42, y=15, w=125)
+                if os.path.exists(img_path): os.remove(img_path)
+                
+                # --- HEADLINE & SPECS ---
+                pdf.set_y(115) 
+                pdf.set_font('helvetica', 'B', 18) 
+                pdf.set_text_color(20, 20, 20)
+                pdf.multi_cell(0, 10, f"{brand_bro} {model_bro} - {headline_bro}", align='C')
+                
+                pdf.ln(2)
+                pdf.set_fill_color(245, 245, 245)
+                pdf.rect(10, pdf.get_y(), 190, 12, 'F')
+                
+                pdf.set_y(pdf.get_y() + 3)
+                pdf.set_font('helvetica', 'B', 9)
+                pdf.set_text_color(80, 80, 80)
+                pdf.cell(63, 6, f"{spec_engine.upper()}", align='C')
+                pdf.cell(63, 6, f"{spec_cap.upper()}", align='C')
+                pdf.cell(63, 6, f"{spec_weight.upper()}", align='C', ln=True)
+                
+                # --- TRUST BADGES ---
+                pdf.ln(5)
+                pdf.set_font('helvetica', 'B', 10)
+                pdf.set_text_color(255, 255, 255)
+                start_x = 10
+                box_w = 60
+                spacing = 5
+                
+                pdf.set_fill_color(*b_color)
+                pdf.set_xy(start_x, pdf.get_y())
+                if badge1: pdf.cell(box_w, 8, f"{badge1.upper()}", align='C', fill=True)
+                pdf.cell(spacing, 8, "", align='C')
+                if badge2: pdf.cell(box_w, 8, f"{badge2.upper()}", align='C', fill=True)
+                pdf.cell(spacing, 8, "", align='C')
+                if badge3: pdf.cell(box_w, 8, f"{badge3.upper()}", align='C', fill=True, ln=True)
+                pdf.ln(8)
+                
+                # --- COPYWRITING AI ---
+                lines = final_copy_bro.strip().split('\n')
+                for line in lines:
+                    if '|' in line:
+                        judul, deskripsi = line.split('|', 1)
+                        judul_bersih = judul.replace("**", "").replace("*", "").strip().upper()
+                        deskripsi_bersih = deskripsi.replace("**", "").replace("*", "").strip()
+                        
+                        pdf.set_fill_color(*b_color)
+                        pdf.ellipse(10, pdf.get_y() + 2, 3, 3, 'F')
+                        
+                        pdf.set_xy(16, pdf.get_y())
+                        pdf.set_font('helvetica', 'B', 12)
+                        pdf.set_text_color(*b_color)
+                        pdf.cell(0, 6, judul_bersih, ln=True)
+                        
+                        pdf.set_xy(16, pdf.get_y())
+                        pdf.set_font('helvetica', '', 10)
+                        pdf.set_text_color(50, 50, 50)
+                        pdf.multi_cell(0, 5, deskripsi_bersih)
+                        pdf.ln(4)
+                
+                # --- KONTAK WA ---
+                safe_y = max(pdf.get_y() + 8, 245)
+                pdf.set_xy(10, safe_y)
+                pdf.set_font('helvetica', 'B', 12)
+                pdf.set_text_color(20, 20, 20)
+                pdf.cell(50, 6, "HUBUNGI SALES KAMI:", ln=True)
+                
+                pdf.set_font('helvetica', 'B', 16)
+                pdf.set_text_color(*b_color)
+                wa_link = f"https://wa.me/{wa_num}"
+                pdf.cell(50, 8, f"WhatsApp: {wa_num}", link=wa_link, ln=True)
+
+                if logo_path and os.path.exists(logo_path): os.remove(logo_path)
+
+                # --- EXPORT TO PDF & PNG ---
+                out = pdf.output(dest='S')
+                pdf_bytes = bytes(out)
+                
+                doc = fitz.open("pdf", pdf_bytes)
+                page = doc.load_page(0)
+                pix = page.get_pixmap(dpi=300)
+                png_bytes = pix.tobytes("png")
+                
+                st.success("🎉 Brosur Marketing Resolusi Tinggi Siap Didownload!")
+                
+                dl_col1, dl_col2 = st.columns(2)
+                with dl_col1:
+                    st.download_button("⬇️ Download High-Res PDF", data=pdf_bytes, file_name=f"Brosur_{brand_bro}_{model_bro}.pdf", mime="application/pdf", use_container_width=True)
+                with dl_col2:
+                    st.download_button("🖼️ Download Gambar (PNG)", data=png_bytes, file_name=f"Brosur_{brand_bro}_{model_bro}.png", mime="image/png", use_container_width=True)
+                    
 # ==========================================
 # FOOTER
 # ==========================================
