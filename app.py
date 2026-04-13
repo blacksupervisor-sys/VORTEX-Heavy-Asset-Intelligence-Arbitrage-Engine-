@@ -370,6 +370,112 @@ with st.expander("🌐 Modul 10: Expat Negotiator", expanded=False):
             st.info(genai.GenerativeModel('gemini-flash-latest').generate_content(f"Terjemahkan ke {bahasa_target} dengan nada eksekutif B2B: {teks_indo}").text)
 
 # ==========================================
+# MODUL 9: PHOTONIS VISUALIZER & AUTO-BROCHURE ENGINE
+# ==========================================
+with st.expander("📸 MODUL 9: Photonis Visualizer & Auto-Brochure", expanded=True):
+    st.markdown("### 🛠️ Product Intelligence & Sales Kit Generator")
+    
+    tab_foto, tab_brosur = st.tabs(["🔍 Photonis Analyzer", "📑 Mesin Pembuat Brosur"])
+
+    # --- TAB 1: PHOTONIS ANALYZER (Spesifikasi Visual & Teknis) ---
+    with tab_foto:
+        st.info("Pilih unit untuk menampilkan analisis teknis dan keunggulan visual di depan klien.")
+        
+        col_foto1, col_foto2 = st.columns([1, 2])
+        with col_foto1:
+            unit_pilihan = st.selectbox("Pilih Unit (Photonis):", [
+                "Aimix Self-Loading AS-3.5",
+                "Aimix Self-Loading AS-4.0",
+                "Tatsuo Excavator TX-200",
+                "ABJZ Concrete Pump"
+            ], key="foto_unit")
+            
+        with col_foto2:
+            st.markdown(f"**🔥 Keunggulan Utama {unit_pilihan}:**")
+            if "Aimix" in unit_pilihan:
+                st.write("✔️ **4-in-1 System:** Muat, Aduk, Pindah, Tuang dalam satu unit.")
+                st.write("✔️ **Drum Putar 270°:** Pengecoran fleksibel di area sempit.")
+                st.write("✔️ **Kamera 360°:** Keamanan manuver di lokasi proyek.")
+            elif "Tatsuo" in unit_pilihan:
+                st.write("✔️ **Isuzu Engine:** Irit bahan bakar dan tangguh.")
+                st.write("✔️ **Reinforced Boom:** Tahan terhadap material keras.")
+                st.write("✔️ **Cabin AC & Ergonomic:** Operator tidak cepat lelah.")
+            elif "ABJZ" in unit_pilihan:
+                st.write("✔️ **Jarak Pompa Vertikal:** Mampu memompa hingga lantai 10.")
+                st.write("✔️ **Sistem Hidrolik Stabil:** Aliran beton lancar anti-mampet.")
+
+        st.divider()
+        st.markdown("**⚙️ Spesifikasi Teknis Cepat (Untuk Pengawas Lapangan)**")
+        # Simulasi database teknis
+        if "AS-3.5" in unit_pilihan:
+            spek = {"Kapasitas Drum": "5.300 Liter", "Output per Batch": "3.5 m3", "Mesin": "Yuchai 85 kW", "Sistem Penggerak": "4x4 Wheel Drive"}
+        elif "AS-4.0" in unit_pilihan:
+            spek = {"Kapasitas Drum": "6.100 Liter", "Output per Batch": "4.0 m3", "Mesin": "Yuchai 92 kW", "Sistem Penggerak": "4x4 Wheel Drive"}
+        else:
+            spek = {"Kapasitas": "Menyesuaikan", "Tipe Mesin": "Heavy Duty", "Sistem": "Hydraulic Main Pump"}
+        
+        # Menampilkan spesifikasi dalam grid
+        cols = st.columns(len(spek))
+        for i, (kunci, nilai) in enumerate(spek.items()):
+            cols[i].metric(label=kunci, value=nilai)
+
+    # --- TAB 2: MESIN BROSUR / AUTO-SALES KIT ---
+    with tab_brosur:
+        st.markdown("### 🖨️ Generator Penawaran & Spesifikasi Instan")
+        st.write("Masukkan nama klien untuk mencetak *Sales Kit* personal.")
+        
+        c_bro1, c_bro2 = st.columns(2)
+        with c_bro1:
+            nama_klien = st.text_input("Nama Klien / Perusahaan:", value="PT. Bangun Nusantara", key="bro_klien")
+            lokasi_proyek = st.text_input("Lokasi Proyek:", value="Kalimantan Timur", key="bro_lokasi")
+        with c_bro2:
+            unit_brosur = st.selectbox("Unit yang Ditawarkan:", [
+                "Aimix Self-Loading AS-3.5",
+                "Aimix Self-Loading AS-4.0",
+                "Tatsuo Excavator TX-200"
+            ], key="bro_unit")
+            harga_penawaran = st.number_input("Harga Penawaran (Rp):", value=850000000, key="bro_harga")
+
+        st.divider()
+        
+        # Format Brosur Penawaran
+        teks_brosur = f"""=========================================
+OFFICIAL SALES KIT & TECHNICAL PROPOSAL
+=========================================
+Kepada Yth: Pimpinan {nama_klien}
+Lokasi Proyek: {lokasi_proyek}
+
+Merespon kebutuhan percepatan infrastruktur di proyek Bapak/Ibu, kami dari Azarindo merekomendasikan unit operasional dengan spesifikasi sebagai berikut:
+
+▶ UNIT: {unit_brosur}
+▶ HARGA SPESIAL: Rp {harga_penawaran:,.0f}
+
+KEUNGGULAN INVESTASI UNIT INI:
+1. Efisiensi Waktu: Mempercepat produksi beton/material hingga 3x lipat dibanding metode konvensional.
+2. Hemat SDM: Cukup dioperasikan oleh 1-2 orang, memangkas biaya harian tukang.
+3. Kualitas Presisi: Mutu material terjaga karena ditakar dan diaduk oleh sistem mesin langsung di lapangan.
+
+[Telah dilampirkan: Garansi Mesin 1 Tahun & Free Training Operator]
+
+Untuk diskusi lebih lanjut mengenai skema pembayaran (Cash/Kredit), silakan hubungi kami.
+
+Hormat kami,
+Adjie Agung
+Heavy Asset Specialist - Azarindo
+========================================="""
+
+        st.text_area("Preview Brosur (Bisa langsung di-copy ke WA/Email):", value=teks_brosur, height=350)
+        
+        # Tombol Download sebagai file .TXT
+        st.download_button(
+            label="📄 Download Sales Kit (.txt)",
+            data=teks_brosur,
+            file_name=f"Penawaran_{nama_klien.replace(' ', '_')}.txt",
+            mime="text/plain",
+            use_container_width=True
+        )
+        
+# ==========================================
 # MODUL 11: ELITE DIGITAL CARD (PERFECT BALANCE EDITION)
 # ==========================================
 import base64 
