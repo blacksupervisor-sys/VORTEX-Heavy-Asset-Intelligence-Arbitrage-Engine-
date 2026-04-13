@@ -147,7 +147,7 @@ with st.expander("💬 Modul 4: AI Comment Sniper", expanded=False):
             st.success(model_sniper.generate_content(f"Balas komentar: '{komen}' untuk {brand} {unit_type}. Deteksi Hot Lead/Skeptis/Troll, patahkan argumennya.").text)
 
 # ==========================================
-# MODUL 8: EXECUTIVE PRODUCTION & ROI DASHBOARD (UNIFIED)
+# MODUL 5: EXECUTIVE PRODUCTION & ROI DASHBOARD (UNIFIED)
 # ==========================================
 with st.expander("💎 MODUL 8: EXECUTIVE PRODUCTION & ROI DASHBOARD", expanded=True):
     st.markdown("### 📊 Analisis Finansial & Teknis Terpadu")
