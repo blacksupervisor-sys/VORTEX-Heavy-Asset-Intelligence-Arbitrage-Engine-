@@ -177,47 +177,50 @@ with st.expander("💰 Modul 5: Financial Sniper (ROI)", expanded=False):
         st.download_button("📄 Download Proposal", data=bio.getvalue(), file_name=f"Proposal_{brand}.docx", use_container_width=True)
 
 # ==========================================
-# MODUL 8.1: EFFICIENCY COMPARISON (UNIT VS BATCHING PLANT)
+# MODUL 8.1: EFFICIENCY COMPARISON (UNIT VS BATCHING PLANT) - FIXED
 # ==========================================
 with st.expander("🏗️ Modul 8.1: Unit vs Batching Plant Efficiency", expanded=True):
     st.markdown("### 🔄 Perbandingan Biaya Beton")
     st.info("Hitung penghematan dengan memproduksi beton sendiri di lokasi proyek.")
 
+    # Membuat kolom baru khusus untuk modul ini agar tidak bentrok
     col_bp1, col_bp2 = st.columns(2)
     
     with col_bp1:
         st.markdown("**🏬 Biaya Batching Plant (Luar)**")
-        harga_beton_m3 = st.number_input("Harga Beton per m3 (Rp):", value=1200000)
-        jarak_proyek = st.number_input("Jarak dari Plant ke Proyek (Km):", value=20)
-        biaya_mobilisasi_m3 = st.number_input("Biaya Kirim per m3/Km (Rp):", value=5000)
+        harga_beton_m3 = st.number_input("Harga Beton per m3 (Rp):", value=1200000, key="hp_m3")
+        jarak_proyek = st.number_input("Jarak dari Plant ke Proyek (Km):", value=20, key="jr_pj")
+        biaya_mobilisasi_m3 = st.number_input("Biaya Kirim per m3/Km (Rp):", value=5000, key="bm_m3")
 
-    with col_input2:
+    with col_bp2: # <-- INI SUDAH DIPERBAIKI (Sebelumnya col_input2)
         st.markdown("**🚜 Produksi Mandiri (Aimix/ABJZ)**")
-        biaya_material_m3 = st.number_input("Biaya Raw Material (Semen, Pasir, Batu) per m3 (Rp):", value=850000)
-        biaya_op_m3 = st.number_input("Biaya Solar & Operator per m3 (Rp):", value=50000)
+        biaya_material_m3 = st.number_input("Biaya Raw Material per m3 (Rp):", value=850000, key="rm_m3")
+        biaya_op_m3 = st.number_input("Biaya Solar & Operator per m3 (Rp):", value=50000, key="bo_m3")
 
     # --- LOGIKA HITUNG ---
     total_batching_plant = harga_beton_m3 + (jarak_proyek * biaya_mobilisasi_m3)
     total_produksi_mandiri = biaya_material_m3 + biaya_op_m3
     penghematan_per_m3 = total_batching_plant - total_produksi_mandiri
     
-    # Estimasi Kebutuhan Proyek
-    volume_proyek = st.number_input("Total Volume Beton Proyek (m3):", value=1000)
+    # Input Volume Proyek
+    volume_proyek = st.number_input("Total Volume Beton Proyek (m3):", value=1000, key="vol_pj")
     total_saving = penghematan_per_m3 * volume_proyek
 
     # --- DISPLAY HASIL ---
     st.divider()
     c1, c2 = st.columns(2)
     c1.metric("Biaya Batching Plant", f"Rp {total_batching_plant:,.0f} /m3")
-    c2.metric("Biaya Produksi Mandiri", f"Rp {total_produksi_mandiri:,.0f} /m3", delta=f"-Rp {penghematan_per_m3:,.0f}", delta_color="normal")
+    c2.metric("Biaya Produksi Mandiri", f"Rp {total_produksi_mandiri:,.0f} /m3", 
+              delta=f"-Rp {penghematan_per_m3:,.0f}", delta_color="normal")
 
     st.success(f"💰 **Total Potensi Penghematan:** Rp {total_saving:,.0f} untuk volume {volume_proyek} m3.")
     
-    if total_saving > harga_alat:
-        st.warning(f"💡 **Insight:** Hanya dari satu proyek ini, penghematan Anda sudah bisa melunasi 1 unit alat baru (Self-Loading Mixer)!")
+    # Syarat perbandingan dengan harga_alat (pastikan variabel harga_alat ada di Modul 8)
+    # Jika error karena harga_alat tidak terbaca, kita gunakan angka default atau ambil dari input
+    if total_saving > 500000000: # Contoh threshold 500jt
+        st.warning(f"💡 **Insight:** Penghematan proyek ini sudah bisa menutup sebagian besar investasi alat baru!")
     
-    # TOMBOL COPY ANALISIS EFISIENSI
-    if st.button("📋 Salin Narasi Efisiensi"):
+    if st.button("📋 Salin Narasi Efisiensi", key="btn_copy_eff"):
         narasi = f"""
         *PERBANDINGAN EFISIENSI BETON*
         Jarak Proyek: {jarak_proyek} Km
